@@ -1,0 +1,314 @@
+---
+# title: "Raça ou cor em São Paulo"
+# description: "Post description for first post"
+# author: "Núcleo de Dados"
+# date:  "1/05/2025"
+# image: "cover.jpg"
+# categories:
+#   - Spatial distribution
+#   - Race
+# editor_options: 
+#   chunk_output_type: console
+---
+
+
+```{r}
+#| label: options_all_doc
+#| echo: false
+knitr::opts_chunk$set(options(scipen = 999, digits = 5))
+```
+
+# Intro
+The present document was created to understand the race/color distribution in different scale levels over time. In order to get this, the Brazilian demographic census' data (IBGE) will be used.
+
+First, let's install and load the packages needed.
+
+```{r}
+#| label: load_packages
+#| message: false
+
+# Load the packages (if some package must be installed, use the install.packages("package_name") function)
+pckg <- c("tidyverse", "sf", "here", "arrow", "censobr", "geobr", "sidrar", "gt", "devtools", "mapview")
+# install.packages(pckg)
+
+lapply(pckg, library, character.only = TRUE)
+
+```
+
+
+## INVESTIGATE MUNICIPALITY USING GEOBR AND CENSOBR
+
+First, let's create some variables to make the code more easily reproducible.
+
+```{r}
+#| label: vars_to_reuse
+# Let's create a list of variables to reuse the code
+## Select the municipality(ies)' name(s)
+mun_name = "São Paulo"
+
+
+## Select the census demographic year
+census_year = 2010 # Possibilities: 1960, 1970, 1980, 1991, 2000, 2010. See: https://ipeagit.github.io/censobr/articles/censobr.html
+
+
+## See the dictionary of variables
+### Select the dataset of interest
+dataset_sel = "population" # Possibilities: "population", "households", "families", "mortality", "emigration", "tracts". See: ?censobr::data_dictionary, argument dataset
+
+### See the variable dictionary
+censobr::data_dictionary(year = census_year, dataset = dataset_sel)
+
+```
+
+
+Choose the variables of interest from Brazilian demographic census.
+
+```{r}
+#| label: vars_cens_2010
+
+## Choose the population variables of interest
+var_cens_pop <- c("V0001", "V0002", "V0011", "V0300", "V0010", "V0606", "V0601", "V0618", "V0620", "V0624", "V6254", "V6264", "V6529", "V6531")
+
+
+## Choose the households variables of interest
+# var_cens_dom <- c("V0001", "V0002", "V0011", "V0300", "V0010", "V0401", "V4002", "V6203")
+
+
+## POPULATION DATASET (POP DATA)
+# V0001     UNIDADE DA FEDERAÇÃO
+# V0002     CÓDIGO DO MUNICÍPIO
+# V0011     ÁREA DE PONDERAÇÃO
+# V0300     CONTROLE
+# V0010     PESO AMOSTRAL
+# V0606   RAÇA E COR
+# V0618     NASCEU NESTE MUNICÍPIO
+# V0620     NACIONALIDADE
+# V0624     TEMPO DE MORADIA NO MUNICÍPIO
+# V0626   RESIDÊNCIA EM 31 DE JULHO DE 2005
+# V6254     MUNICÍPIO DE RESIDÊNCIA ANTERIOR
+# V6264     MUNICÍPIO DE RESIDÊNCIA EM 31 DE JULHO DE 2005
+# V5020   NÚMERO DA FAMÍLIA
+# V5060   NÚMERO DE PESSOAS NA FAMÍLIA
+# V5070   RENDIMENTO FAMILIAR PER CAPITA EM JULHO DE 2010
+# V6511   VALOR DO RENDIMENTO BRUTO (OU A RETIRADA) MENSAL NO TRABALHO PRINCIPAL: (pode ter valor branco)
+# V6521   VALOR DO RENDIMENTO BRUTO (OU A RETIRADA) MENSAL NOS DEMAIS TRABALHOS (EM REAIS)
+# V6529   RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) EM JULHO DE 2010
+# V6531   RENDIMENTO DOMICILIAR PER CAPITA (DOMICÍLIO PARTICULAR) EM JULHO DE 2010
+
+## HOUSEHOLD DATASET (HH DATA)
+# V0401   QUANTAS PESSOAS MORAVAM NESTE DOMICÍLIO EM 31 DE JULHO DE 2010
+# V4001     ESPÉCIE DE UNIDADE VISITADA
+# V4002     TIPO DE ESPÉCIE
+# V6203     DENSIDADE DE MORADOR / CÔMODO  
+# V6204     DENSIDADE DE MORADOR / DORMITÓRIO
+
+```
+
+
+Once the variables are chosen, let's load the data for both population and households.
+
+```{r}
+#| label: race_distrib_2010
+## Download and Select the variables of interest from POP DATA, including RACE
+micro_pop_orig <- censobr::read_population(year = census_year, columns = var_cens_pop, add_labels = "pt") # if the downloading was stopped before finishing, use "censobr::censobr_cache(delete_file = "2000_population_v0.3.0.parquet")" to exclude it from your computer before running the code again
+
+
+# ## Select the variables of interest from HH dataset, including RACE
+# micro_dom_orig <- censobr::read_households(year = census_year, columns = var_cens_dom, add_labels = "pt")
+
+
+## Compute the total population for the municipality, weighting area (AP) and household by race
+### Select the municipality of interest and load the pop data
+micro_pop <- micro_pop_orig |>
+  filter(V0001 == "35" & V0002 == "50308") |>
+  collect() |>
+  mutate(V0624 = as.numeric(V0624)) |>
+  janitor::clean_names()
+
+glimpse(micro_pop)
+
+# ### Select the municipality of interest and load the house data
+# micro_dom <- micro_dom_orig |>
+#   filter(V0001 == "35" & V0002 == "50308") |>
+#   collect() |>
+#   janitor::clean_names()
+#
+# glimpse(micro_dom)
+
+
+### Compute the RACE distribution by MUN
+race_by_mun_2010 <- micro_pop |>
+  mutate(v0606 = factor(v0606),
+         v0618 = factor(v0618)
+         # Create a new var if labeled categories are not used (add_labels = "pt" arument in the "read_x" censobr function),
+         # raca_nom = factor(case_when(v0606 == 1 ~ "branca",
+         #                      v0606 == 2 ~ "preta",
+         #                      v0606 == 3 ~ "amarela",
+         #                      v0606 == 4 ~ "parda",
+         #                      v0606 == 5 ~ "indígena",
+         #                      v0606 == 9 ~ "ignorado"))
+        ) |>
+  group_by(v0606) |>
+  summarise(tot_peop_weig = sum(v0010), tot_peop = n()) |>
+  rename(raca_cor = v0606) |>
+  mutate(prop_race = tot_peop_weig/sum(tot_peop_weig))
+
+# write_csv2(race_by_mun_2010, file = here(file.path("2010", "Gerados", "Tabelas", "raca_mun_sp_2010.csv")))
+
+### Compute the RACE distribution by AP
+race_by_ap_2010 <- micro_pop |>
+  mutate(v0606 = factor(v0606),
+         v0618 = factor(v0618),
+         v0011 = factor(v0011)
+         # raca_nom = factor(case_when(v0606 == 1 ~ "branca",
+         #                      v0606 == 2 ~ "preta",
+         #                      v0606 == 3 ~ "amarela",
+         #                      v0606 == 4 ~ "parda",
+         #                      v0606 == 5 ~ "indígena",
+         #                      v0606 == 9 ~ "ignorado"))
+         ) |>
+  group_by(v0011, v0606) |>
+  summarise(tot_peop_weig = sum(v0010), tot_peop = n()) |>
+  rename(ap = v0011, raca_cor = v0606) |>
+  mutate(prop_race = tot_peop_weig/sum(tot_peop_weig))
+
+# (WIDER form)
+race_by_ap_2010_wider <- race_by_ap_2010 |>
+  pivot_wider(id_cols = ap, names_from = raca_cor, names_glue = "{raca_cor}_{.value}", values_from = c(tot_peop_weig, prop_race), values_fill = 0) |>
+  set_names("ap", "amarela", "branca", "parda", "preta", "indigena", "ignorado", "amarela_prop", "branca_prop", 'parda_prop', "preta_prop", "indigena_prop", "ignorado_prop")
+
+# write_csv2(race_by_ap_2010_wider, file = here(file.path("2010", "Gerados", "Tabelas", "raca_ap_sp_2010.csv")))
+
+
+### Compute the RACE distribution by AP (cases selection).
+#### Create a variable for all areas (AP) of interest
+ap_sel <- c(3550308005001, 3550308005007, 3550308005008)
+
+#### Select the cases and compute the results by AP
+race_by_ap_2010_sel <- race_by_ap_2010 |>
+  filter(ap %in% ap_sel) |>
+  mutate(district = case_when(ap == ap_sel[2] | ap == ap_sel[3] ~ "liberdade",
+                              ap == ap_sel[1] ~ "se"))
+
+#### (WIDER form - cases selected)
+race_by_ap_2010_sel_wider <- race_by_ap_2010_sel |>
+  pivot_wider(id_cols = ap, names_from = raca_cor, names_glue = "{raca_cor}_{.value}", values_from = c(tot_peop_weig, prop_race), values_fill = 0) |>
+  mutate(district =
+           case_when(
+             ap == ap_sel[1] ~ "se",
+             ap == ap_sel[2] | ap == ap_sel[3] ~ "liberdade")) |>
+  set_names("ap", "amarela", "branca", "parda", "preta", "indigena", "amarela_prop", "branca_prop", 'parda_prop', "preta_prop", "indigena_prop", "distrito") |>
+  relocate(distrito)
+
+# write_csv2(race_by_ap_2010_sel_wider, file = here(file.path("2010", "Gerados", "Tabelas", "raca_ap_sp_sel_2010.csv")))
+
+
+### Compute the RACE distribution by HH
+race_by_dom_2010 <- micro_pop |>
+  mutate(v0606 = factor(v0606),
+         v0618 = factor(v0618),
+         v0300 = factor(v0300)
+         # Create a new var if labeled categories are not used (add_labels = "pt" arument in the "read_x" censobr function),
+         # raca_nom = factor(case_when(v0606 == 1 ~ "branca",
+         #                      v0606 == 2 ~ "preta",
+         #                      v0606 == 3 ~ "amarela",
+         #                      v0606 == 4 ~ "parda",
+         #                      v0606 == 5 ~ "indígena",
+         #                      v0606 == 9 ~ "ignorado"))
+        ) |>
+  group_by(v0300, v0606) |>
+  summarise(tot_peop_weig = sum(v0010), tot_peop = n()) |>
+  rename(dom_id = v0300, raca_cor = v0606) |>
+  mutate(prop_race_dom = tot_peop_weig/sum(tot_peop_weig))
+
+
+## Create a graphic for the race distribution
+### Parameters to reuse
+title_grap =  "Distribuição de pessoas por cor ou raça"
+subtitle_grap =  "São Paulo, 2010"
+data_orig_grap = "IBGE, Censo 2010"
+ap_sel <- c(3550308005001, 3550308005007, 3550308005008)
+
+### Municipality
+race_mun_graph <- race_by_mun_2010 |>
+  ggplot(aes(x = fct_reorder(raca_cor, tot_peop_weig, .desc = T), y = tot_peop_weig, fill = raca_cor)) +
+    geom_col(show.legend = F) +
+    geom_text(aes(
+      label = round(tot_peop_weig)),
+      vjust = - 0.5,
+      hjust = 0.5,
+      size = 4,
+      fontface = "bold",
+      # colour = "#3b3938"
+      ) +
+    geom_text(aes(
+      label = str_c("(", round(prop_race*100, 2), "%)")),
+      vjust = 1.25,
+      hjust = 0.5,
+      size = 3.5) +
+    labs(title = title_grap,
+       subtitle = subtitle_grap,
+       caption = data_orig_grap,
+       # x = "(Cor ou raça)",
+       # y = "(Número de pessoas)"
+       )  +
+  scale_fill_manual(values = c("yellow", "#f7efeb", "lightgrey", "#bf812d", "#8c510a", "#5e3814")) +
+  scale_y_continuous(breaks = c(0, 2000000, 4000000, 6000000),
+                    labels = c("0", "2 Mi", "4 Mi", "6 Mi")) +
+  # scale_fill_viridis_d(direction = 1) +
+  theme_classic(base_size = 14) +
+  theme(
+    axis.ticks.x = element_blank(),
+    # axis.text.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    # axis.text.y = element_blank(),
+    axis.title = element_blank() # element_text(colour = "grey", size = 7.5))  
+    )
+# + coord_flip()
+
+# ggsave(filename = str_c("race_mun_sp_", census_year, "_grafv.jpeg"), plot = race_mun_graph1, path = here(file.path(census_year, "Gerados", "Imagens")), dpi = 300, width = 25, height = 17.5, units = "cm")
+
+### WEIGHTING AREAS SELECTED
+race_ap_graph <- race_by_ap_2010_sel |>
+  # Create a variable to label the facets
+  mutate(ap_label = case_when(
+    ap == ap_sel[1] ~ str_c(ap_sel[1], " (Sé)"),
+    ap == ap_sel[2] ~ str_c(ap_sel[2], " (Liberdade)"),
+    ap == ap_sel[3] ~ str_c(ap_sel[3], " (Liberdade)"))) |>
+  ggplot(aes(x = fct_reorder(raca_cor, tot_peop_weig, .desc = T), y = tot_peop_weig, fill = raca_cor)) +
+    geom_col(show.legend = F) +
+    geom_text(aes(
+      label = round(tot_peop_weig)),
+      vjust = - 0.5,
+      hjust = 0.5,
+      size = 3.75,
+      fontface = "bold",
+      # colour = "#3b3938"
+      ) +
+    geom_text(aes(
+      label = str_c("(", round(prop_race*100, 2), "%)")),
+      vjust = 1.25,
+      hjust = 0.5,
+      size = 3) +
+    labs(title = title_grap,
+       subtitle = subtitle_grap,
+       caption = data_orig_grap,
+       # x = "(Cor ou raça)",
+       # y = "(Número de pessoas)"
+       )  +
+  scale_fill_manual(values = c("yellow", "#f7efeb", "lightgrey", "#bf812d", "#8c510a", "#5e3814")) +
+  # scale_fill_viridis_d(direction = 1) +
+  theme_classic(base_size = 14) +
+  theme(
+    # axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    # axis.ticks.y = element_blank(),
+    # axis.text.y = element_blank(),
+    axis.title = element_blank() # element_text(colour = "grey", size = 7.5))  
+    ) +
+  facet_wrap(vars(ap_label)) +
+  coord_flip()
+
+# ggsave(filename = str_c("race_mun_sp_ap_", census_year, "_grafv.jpeg"), plot = race_ap_graph, path = here(file.path(census_year, "Gerados", "Imagens")), dpi = 300, width = 25, height = 17.5, units = "cm")
+race_ap_graph
+```

@@ -1,0 +1,8 @@
+---
+Title: Blog
+listing: # an option here is to set this filed as default. With this, any other option, as contents and type are not needed.
+  contents: / # defines where Quarto should look for files
+  type: default
+---
+
+This is the blog page created to centralize and list all the posts.

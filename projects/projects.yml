@@ -1,0 +1,34 @@
+- title: Previsão do valor da moradia com Machine Learning
+  path: https://example.com/house-prices
+  # Photo by Breno Assis on Unsplash https://unsplash.com/photos/aerial-photography-of-rural-r3WAWU5Fi5Q 
+  image: images/breno-assis-r3WAWU5Fi5Q-unsplash.jpg
+  description: >
+    Este projeto envolve o uso de algoritmos de aprendizado de máquina para 
+    prever preços de imóveis com base em diversos fatores, como localização, 
+    tamanho e comodidades. Inclui limpeza de dados, engenharia de recursos e 
+    seleção de modelos.
+  categories: [Python, Machine Learning, Data Cleaning]
+  date: 2025-03-01
+
+- title: Segmentação de clientes usando técnicas de clusterização
+  path: https://example.com/customer-segmentation
+  # Photo by Adrien Delforge on Unsplash  https://unsplash.com/photos/man-in-black-long-sleeve-shirt-and-black-pants-standing-on-shopping-cart-CrHG_ZYn1Dw
+  image: images/adrien-delforge-CrHG_ZYn1Dw-unsplash.jpg
+  description: >
+    Este projeto se concentra na segmentação de clientes em diferentes grupos com base em seu 
+    comportamento de compra e dados demográficos. Ele utiliza algoritmos de agrupamento como K-means e
+    agrupamento hierárquico para identificar segmentos distintos de clientes..
+  categories: [R, Machine Learning, Clustering, Statistical Modelling]
+  date: 2025-02-01
+
+- title: Visualizando as emissõeS globais de CO2
+  path: https://example.com/co2-visualization
+  # Photo by Anne Nygård on Unsplash https://unsplash.com/photos/white-clouds-in-blue-sky-vc-vPgGqAr4
+  image: images/anne-nygard-vc-vPgGqAr4-unsplash.jpg
+  description: >
+    Este projeto envolve a criação de visualizações para mostrar tendências nas 
+    emissões globais de CO2 ao longo do tempo. Inclui extração de dados de 
+    bancos de dados públicos, limpeza de dados e uso de bibliotecas de 
+    visualização para criar gráficos e tabelas interativas.
+  categories: [R, Data Visualization, Environmental Science]
+  date: 2025-01-01

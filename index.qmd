@@ -1,0 +1,47 @@
+---
+# title: "INCT Produção da Casa e da Cidade"
+# subtitle: ""
+# `INCT_logo.jpg` photo on https://www.labhab.fau.usp.br/inct/
+image: images/logo_inct.png
+about: # https://quarto.org/docs/websites/website-about.html
+  template: broadside
+  image-shape: rectangle
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com
+    - icon: email
+      text: E-mail
+      href: inct-casaecidade@usp.br
+---
+
+# A proposta do INCT
+
+O INCT Produção da Casa e da Cidade, rede formada por seis universidades públicas brasileiras e mais de 70 pesquisadores,  tem por objetivo aprofundar o conhecimento sobre a produção do urbano no Brasil contemporâneo, analisando a complexa e sofisticada interação entre Estado, mercado e organização social em um capitalismo caracterizado pela dominância financeira. Após 35 anos da Constituição Federal, e pouco mais de 20 do Estatuto da Cidade, o projeto resgata, atualiza e problematiza as contribuições do livro “A Produção Capitalista da Casa (e da Cidade) no Brasil Industrial“, organizado por Erminia Maricato e publicado em 1979.
+
+Isso porque, apesar do ciclo de políticas públicas implementadas desde a redemocratização, as condições precárias de moradia e dos assentamentos urbanos em geral continuam a ser um desafio, de forma ainda mais complexa do que as metrópoles brasileiras enfrentaram na época do livro citado. Entende-se ser fundamental, portanto, avaliar os diversos programas e políticas executados desde então, buscando superar soluções que, baseadas em um diagnóstico do Brasil industrial, já não produzem os efeitos desejados no contexto atual de reprimarização da economia, desindustrialização e dominância financeira.
+
+
+## Instituições Participantes
+
+[Faculdade de Arquitetura e Urbanismo e de Design da Universidade de São Paulo (FAU-USP) – EXECUTORA/SEDE](https://www.fau.usp.br/)
+
+[Centro de Engenharia, Modelagem e Ciências Sociais Aplicadas da Universidade Federal do ABC (CECS/UFABC)](https://cecs.ufabc.edu.br/)
+
+[Laboratório de Estudos e Projetos Urbanos e Regionais da Universidade Federal do ABC (LEPUR/UFABC)](https://lepur.com.br/)
+
+[Instituto de Arquitetura e Urbanismo da Universidade de São Paulo (IAU USP)](https://www.iau.usp.br/)
+
+[Laboratório Estado, Trabalho, Território e Natureza do Instituto de Pesquisa e Planejamento Urbano e Regional da Universidade Federal do Rio de Janeiro (ETTERN/IPPUR/UFRJ)](https://www.etternippur.net/)
+
+[Laboratório Cidades na Amazônia da Faculdade de Arquitetura e Urbanismo da Universidade Federal do Pará (LABCAM/FAU UFPA)](https://www.labcam.net/)
+
+[Faculdade de Arquitetura, Artes, Comunicação e Design da Universidade Estadual Paulista Júlio de Mesquita Filho (FAAC UNESP)](https://www.faac.unesp.br/)
+
+[Centro de Desenvolvimento e Planejamento Regional da Faculdade de Ciências Econômicas da Universidade Federal de Minas Gerais (Cedeplar/FACE/UFMG)](https://cedeplar.ufmg.br/)
+
+<!-- ![Caption](logo_usp.jpg), ![Caption](logo_ufabc.jpg) -->
+
+<!-- ## Experience -->
+
+<!-- Workplace \| Job title \| April 20XX - present -->

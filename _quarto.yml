@@ -1,0 +1,52 @@
+project:
+  type: website
+  # output-dir: docs
+
+website:
+  # title: "INCT"
+  site-url: https://www.labhab.fau.usp.br/inct
+  favicon: images/logo_inct.png
+  
+  open-graph: true # https://quarto.org/docs/websites/website-tools.html#open-graph
+  page-footer: "Made with ❤️ and Quarto"
+  
+  navbar:
+    title: INCT
+    logo: images/logo_inct.png
+    
+    # left: 
+    #   - href: index.qmd
+    #     text: Home
+    right:
+      - text: Sobre
+        menu:
+        - text: O LabHab  
+          href: labhab.qmd
+        - text: O INCT (questão central e estrutura)
+          href: inct_estrutura.qmd
+      - text: Blog
+        href: blog/index.qmd
+      - text: Projetos externos
+        href: projects/index.qmd        
+    
+    tools:
+      - icon: github
+        href: https://github.com
+      - icon: instagram
+        href: https://www.instagram.com/labhabusp/
+      - icon: facebook
+        href: https://www.facebook.com/labhabusp/
+      - icon: letter
+        href: inct-casaecidade@usp.br
+    
+    background: "#de2d26"
+      
+format:
+  html:
+    theme: [cosmo, styles.scss]
+    backgroundcolor: "#f0f0f0"
+    fontcolor: "black"
+    linkcolor: "black"
+    fontsize: 18px # (15 to 20 area a good start point)
+
+

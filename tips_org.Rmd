@@ -1,0 +1,82 @@
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Working with GIT
+
+git remote add origin <https://github.com/jacovine/site_inct>
+
+git branch -M main
+
+git add --all
+
+git commit -m "initial commit"
+
+git push -u origin main
+
+------------------------------------------------------------------------
+
+# Organizing your files/project
+
+Content from: <https://www.youtube.com/watch?v=GeN-qqNLLsM>
+
+There are three possible ways:
+
+1.  Creating the structure from the computer (Windows, i.e.);
+
+2.  Creating the structure using base R functions;
+
+3.  Creating the structure from R terminal.
+
+Here we are going to see the last two ways.
+
+## [2nd WAY]{.underline}
+
+## Find your current/working directory
+
+-   **here::here()**: Gives the same results of getwd()
+
+## See your files:
+
+-   **list.files()**: This command shows all the files in a directory.
+    Default: your working directory. To see the contents of a different
+    directory, pass the direction to the *path* argument. Too list more
+    than one file, use *pattern* argument
+
+## Create a new file:
+
+-   **file.create("dir_path/file_name.txt")**: Used to create a
+    blank/empty file
+
+## Create new directories:
+
+-   **dir.create("new_dir_name")**: Give the name of the new directory.
+    If you want the new directory outside of your working directory
+    (default), pass the path before the new directory name.
+
+## Move your files
+
+### 1st way
+
+-   **file.rename(from = "file_to_move.example", to =
+    "dir_path/file_to_move.example")**: Pass the name of the file you
+    want in the first argument (from), followed by the new folder path
+    in the second argument (to) with your file name.
+
+### 2nd way (2 steps)
+
+-   **file.copy(from = "file_to_move.example", to = "dir_path/")**: Copy
+    the file to the new directory;
+
+-   **file.remove("file_to_move.example"):** Remove the file moved.
+
+OBS.1: the argument "pattern" of list.files function allows to select
+more than one file at once and reuse it to copy the selected files to
+new directory;
+
+OBS.2: the downside of moving and deleting files like this is that Git
+lost the track/history of the files moved.
+
+## [3rd WAY]{.underline}
