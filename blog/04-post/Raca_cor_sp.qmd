@@ -40,7 +40,7 @@ Antes da exploração proposta, vale mencionar que dois pilares conduzem a anál
 
 Uma prática bastante usual ao escrever códigos no R consiste em "declarar/ativar" os pacotes (de funções) no início do *script* - por vezes isso também ocorre com as variáveis que serão utilizadas ao longo do percurso. Ainda que não seja obrigatória, essa prática permite que as funções sejam utilizadas sem que se explicite o nome do pacote (no R, para declarar o pacote e uma de suas funções segue-se a seguinte forma: *pacote::função*).
 
-A seguir, duas formas para instalar e ativar os pacotes necessários são apresentadas. Gerando o mesmo resultado (ativação dos pacotes), a diferença entre a primeira forma (1st Way) e a segunda (2nd Way) é que na última o código checa os pacotes presentes no ambiente local/computador do usuário e apenas instala os que ainda não foram baixados. Já no primeiro caso, mesmo que o pacote já esteja instalado, o comando baixará novamente o seu conteúdo e o reinstalará. Note: aqui, para tornar mais claro o que está ocorrendo no segundo caminho de instalação, optou-se por inserir mensagens indicando se o pacote já estava instalado ou não (graças ao uso do comando *print("mensagem")*). Observe, ainda, que o símbolo ***\#*** é utilizado para a inserção de comentários no código, algo tido como uma boa prática. Ou seja, sempre que se fizer uso desse símbolo, o conteúdo que vier imediatamente após ele será "ignorado" pelo R.
+A seguir, duas formas para instalar e ativar os pacotes necessários são apresentadas. Gerando o mesmo resultado (ativação dos pacotes), a diferença entre a primeira forma (1st Way) e a segunda (2nd Way) é que na última o código checa os pacotes presentes no ambiente local/computador do usuário e apenas instala os que ainda não foram baixados. Já no primeiro caso, mesmo que o pacote já esteja instalado, o comando baixará novamente o seu conteúdo e o reinstalará. Note: aqui, para tornar mais claro o que está ocorrendo no segundo caminho de instalação, optou-se por inserir mensagens indicando se o pacote já estava instalado ou não (graças ao uso do comando *print("mensagem_a_ser_exibida")*). Observe, ainda, que o símbolo ***\#*** é utilizado para a inserção de comentários no código, algo tido como uma boa prática. Ou seja, sempre que se fizer uso desse símbolo, o conteúdo que vier imediatamente após ele será "ignorado" pelo R.
 
 ```{r}
 #| label: load_packages
@@ -90,7 +90,7 @@ Diferentes são os caminhos para acessar e manipular dados no R. A reconstruçã
 
 Outra opção consiste em salvar um conjunto de dados já tabulado por alguma instituição (IBGE, IPEA, Fundação SEADE, CEM USP, etc.) em um computador pessoal e abri-lo no ambiente do R. O IBGE, por exemplo, disponibiliza diferentes recursos e plataformas com essa finalidade: i) a seção do *site* da instituição voltada aos [censos demográficos](https://www.ibge.gov.br/estatisticas/sociais/populacao/22827-censo-demografico-2022.html?=&t=o-que-e); ii); o seu sistema de recuperação de informações, o [SIDRA](https://sidra.ibge.gov.br/), ou, iii) o acesso ao servidor do IBGE via [FTP](https://ftp.ibge.gov.br/).
 
-Por fim, mas sem esgotar o assunto, o acesso a dados pode ser feito por meio de pacotes criados especificamente para esse fim. Com uma vasta gama de casos no R, este é o caminho que será explorado aqui. Mais especificamente, serão utilizados o [CENSOBR](https://ipeagit.github.io/censobr/articles/censobr.html), que fornece dados cenistários tabulares (tabelas), e o [GEOBR](https://ipeagit.github.io/geobr/), que disponibiliza dados geoespaciais. A partir desses dois tipos de dados, eles serão integrados, de forma a incorporar a dimensão territorial na análise.
+Por fim, mas sem esgotar o assunto, o acesso a dados pode ser feito por meio de pacotes criados especificamente para esse fim. Com uma vasta gama de casos no R, este é o caminho que será explorado aqui. Mais especificamente, serão utilizados o [CENSOBR](https://ipeagit.github.io/censobr/articles/censobr.html), que fornece dados cenistários tabulares (tabelas), e o [GEOBR](https://ipeagit.github.io/geobr/), que disponibiliza dados geoespaciais. A partir desses de ambas as bases, os dados de interesse serão integrados, de forma a incorporar a dimensão territorial na análise.
 
 Com vistas a tornar a presente exploração mais facilmente replicável a outros contextos, a seguir dois objetos são criados: i) um para definir a escala na qual a área de interesse está inserida - no presente caso, dado que a região de interesse é a Liberdade, o município de São Paulo será escolhido - e ii) o outro para o ano do censo de interesse. Iniciando a análise para o ano de 2010, com esse tipo de procedimento bastaria mudar duas informações, a escala e o ano, e todo o restante do código será gerado automaticamente, mas agora com novos dados.
 
@@ -101,7 +101,6 @@ Com vistas a tornar a presente exploração mais facilmente replicável a outros
 # Let's create a list of variables to reuse the code
 ## Select the municipality(ies)' name(s)
 mun_name = "São Paulo"
-
 
 ## Select the census demographic year
 census_year = 2010 # Possible years: 1960, 1970, 1980, 1991, 2000, 2010. See: https://ipeagit.github.io/censobr/articles/censobr.html
@@ -193,7 +192,7 @@ glimpse(micro_pop) # <5>
 
 ## Analisando os dados: um retrato para a escala municipal.
 
-Com os dados em mãos, a investigação propriamente dita sobre o comportamento da questão racial pode ir adiante. Nesse sentido, inicialmente será computada a distribuição da variável raça/cor para todo o município. Em seguida, o mesmo procedimento será realizado, mas dessa vez considerando-se apenas as áreas de ponderação que abrangem a área de interesse - e que serão descobertas a seguir. Registre-se: para facilitar a interpretação, algumas transformações são realizadas na base (conversão de tipos de dados e criação de novas variáveis, por ex.).
+Com os dados em mãos, a investigação propriamente dita sobre o comportamento da questão racial pode ir adiante. Nesse sentido, inicialmente será computada a distribuição da variável raça/cor para todo o município. Em seguida, o mesmo procedimento será realizado, mas dessa vez considerando-se uma escala de maior detalhe: a área de ponderação. Nesse momento, procurar-se-á entender como a distribuição da raça/cor se dá em diferentes regiões do território paulistano. Por fim, serão identificadas e analisadas as áreas de ponderação que abrangem a região de interesse - e que serão descobertas mais à frente. Registre-se: para facilitar a interpretação, algumas transformações são realizadas na base (conversão de tipos de dados e criação de novas variáveis, por ex.).
 
 ```{r}
 #| label: count_race_by_mun
@@ -231,7 +230,7 @@ race_by_mun_2010 # <8>
 7.  Compute as proporções de pessoas para cada raça/cor e
 8.  Observe o resultado (quantidade e proporção de pessoas para cada raça/cor)
 
-Ainda que a tabela obtida não esteja sendo aqui impressa, os dados gerados permitem que se construa um primeiro retrato sobre o total de pessoas por raça/cor no município de São Paulo em 2010. É importante ressaltar, porém, que tão importante quanto a geração de dados é a comunicação dos achados - algo que, aos poucos e na medida do possível, será explorado no presente texto. Nesse sentido, para tornar a tabela mais concisa e visualmente atrativa, a seguir uma nova versão é apresentada. Nela, como pode ser visto, existem menos variáveis, os nomes das variáveis são mais intuitivos e os dados foram reordenados - do grupo com mais pessoas para o que possui menos.
+Ainda que a tabela criada não apareça (o código gera a visualização no item 8), os dados gerados permitem que se construa um primeiro retrato sobre o total de pessoas por raça/cor no município de São Paulo em 2010. É este é um bom momento para um comentário de suma importância. Tão relevanto quanto a geração de dados é a comunicação dos achados - algo que, aos poucos e na medida do possível, será explorado no presente texto. Para exemplificar esse ponto, a seguir uma nova versão da tabela é apresentada. Nela, como pode ser visto, existem menos variáveis, os nomes das variáveis são mais intuitivos, os dados foram reordenados - do grupo com mais pessoas para o que possui menos - e ela é esteticamente mais interessante.
 
 ```{r}
 #| label: table_race_by_mun
@@ -253,9 +252,9 @@ race_by_mun_2010 |> # <1>
 5.  Ordene os dados da maior proporção de pessoas para a menor, e,
 6.  Gere uma tabela mais visualmente atrativa;
 
-Outra forma bastante interessante para a visualização de dados baseia-se no uso de gráficos. Para o presente caso, a opção mais apropriada seria o gráfico de barras. E como forma de explorar parte dos elementos que podem compô-lo, optou-se por i) adotar um título, subtítulo e fonte, e, ii) modififcar os valores dos eixos e a cor de fundo. Saliente-se, porém, que o uso de cor fazendo referência às raças ou mesmo o título adotado (mais descritivo e geral) poderiam seguir estratégias distintas e talvez mais interessantes, a depender do contexto e objetivo perseguidos - enfatizando o grupo de interesse, por exemplo[^4].
+Outra forma bastante interessante para a visualização de dados e compreensão daquilo que se quer entender baseia-se no uso de gráficos. Para o presente caso, a opção mais apropriada seria o gráfico de barras. E como forma de explorar parte dos elementos que podem compô-lo, optou-se por i) adotar um título, subtítulo e fonte, e, ii) modififcar os valores dos eixos e a cor de fundo. Saliente-se, porém, que o uso de cor fazendo referência às raças ou mesmo o título adotado (mais descritivo e geral) poderiam seguir estratégias distintas e talvez mais interessantes, a depender do contexto e objetivo perseguidos - enfatizando o grupo de interesse, por exemplo[^4].
 
-[^4]: A discussão sobre visualização de dados e *Storytelling* com dados é vasta e, por questões didáticas, não será aqui abordada. Para exemplificar o exposto, cite-se o livro de Cole N. Knaflic, *Storytelling com dados*.
+[^4]: A discussão sobre visualização de dados e *Storytelling* com dados é vasta e não será aqui abordada de forma mais profunda. Uma referência bastante conhecida nesse campo é o livro de Cole N. Knaflic, *Storytelling com dados*.
 
 ```{r}
 #| label: graph_raca_by_mun
@@ -322,11 +321,11 @@ race_mun_graph # <10>
 
 A partir do gráfico, verifica-se, por exemplo, que cerca de 3/5 (60%) da população paulistana se autodeclarou branca em 2010. A população negra (parda + preta), por sua vez, respondeu por 37% de todos os paulistanos e paulistanas. No extremo oposto encontram-se as pessoas direta ou indiretamente vinculadas aos povos asiáticos (amarelos) e à população indígena. Presentes em nosso território antes da colonização europeia, os povos originários do Brasil representavam apenas 0,1% dos e das paulistanas em 2010, perfazendo cerca de treze mil pessoas.
 
-## Analisando os dados: avançando no entendimento sobre a distribuição da raça/cor nas diferentes partes do território municipal
+## Analisando os dados: avançando no entendimento sobre a distribuição da raça/cor nas diferentes partes do território municipal (áreas de ponderação)
 
 De forma a aprofundar o conhecimento sobre a área de interesse aqui tratada, localizada na região da Liberdade, a seguir será explorada a distribuição da raça/cor por área de ponderação. Ao revisitar a temática em uma escala mais detalhada, comparações entre regiões tornam-se possíveis, com novos subsídios e/ou padrões podendo ser revelados.
 
-Isso posto, o código a seguir gera a distribuição da população paulista por raça/cor para cada uma das áreas de ponderação do município de São Paulo.
+A seguir, o código gera a distribuição da população paulista por raça/cor para cada uma das áreas de ponderação do município de São Paulo.
 
 ```{r}
 #| label: race_distrib_ap_mun_sp
@@ -398,9 +397,9 @@ head(race_by_ap_2010_wider[c(1, 8:13)], n = 10) |> # <8>
 
 A partir das últimas tabelas, que apresetam os *valores absolutos* (número total/volume/montante de pessoas) e *relativos* (proporção de pessoas), verifica-se uma disposição dos dados mais amigável. Um desafio persiste, porém: o município de São Paulo é composto por 310 áreas de ponderação. Ou seja, a tabela é constituída por 310 linhas, tornando a apreensão do todo difícil.
 
-Em situações desse tipo, com bases de dados extensas, usualmente recorre-se a estratégias para sintetizá-los e explicitar eventuais padrões. Uma delas, inclusive, já foi explorada: o uso de ferramentas baseadas em visualização de dados, como os gráficos. A ela, some-se a geração de medidas síntese de localização, tal qual a famigerada *média*, e de dispersão, dentre as quais pode ser citado o *desvio padrão*.
+Em situações desse tipo, com bases de dados extensas, usualmente recorre-se a estratégias para sintetizá-los e explicitar eventuais padrões. Uma delas, inclusive, já foi explorada: o uso de *ferramentas baseadas em visualização de dados*, como os gráficos. A ela, some-se a geração de medidas *síntese de localização*, tal qual a famigerada *média*, e *de dispersão*, dentre as quais pode ser citado o *desvio padrão*.
 
-A seguir, dois tipos de gráficos ("*pontos"* e "*boxplot + violino"*) e uma tabela (composta por medidas de resumo) serão apresentados. Mais do que replicar as mesmas informações em formatos distintos, o qeu se pretende é que eles se complementem e possibilitem uma leitura mais rica e acurada. Iniciando a exploração com os gráficos, forma mais intuitiva, almeja-se verificar se alguns indícios ou padrões revelam-se a partir de uma análise visual. A partir das intuições encontradas e/ou questionamentos levantados, em um segundo momento serão computados elementos "mais precisos" (estatísticas) para uma melhor descrição e caracterização da distribuição espacial da raça/cor (apresentados na tabela).
+A seguir, dois tipos de gráficos ("*pontos"* e "*boxplot + violino"*) e uma tabela (composta por medidas de resumo) serão apresentados. Mais do que replicar as mesmas informações em formatos distintos, o que se espera é que eles se complementem e possibilitem uma leitura mais rica e acurada. Iniciando a exploração com os gráficos, forma mais intuitiva, almeja-se verificar se alguns indícios ou padrões revelam-se a partir de uma análise visual. A partir das intuições encontradas e/ou questionamentos levantados, em um segundo momento serão computados elementos "mais precisos" (estatísticas) para uma melhor descrição e caracterização da distribuição espacial da raça/cor (apresentados na tabela).
 
 ```{r}
 #| label: graf_metrics_all_ap_mun_sp
@@ -464,9 +463,10 @@ Como pode ser visto, três gráficos são apresentados. Note-se, contudo, que ta
 
 Obervando-se a localização dos pontos, verifica-se, por exemplo, que enquanto as populações preta, indígena e amarela apresentam valores mais concentrados (maior número de pontos próximos e/ou sobrepostos, reforçando a cor preta), no caso das populações pardas e branca o total de pessoas nas áreas de ponderação está mais disperso (há uma maior variabilidade).
 
-Considerando-se essa mesma separação, é seguro afirmar que nenhuma área de ponderação (ponto preto) possui 10.000 habitantes pretos, indígenas ou amarelos - limiar ultrapassado pelos residentes brancos e pardos em várias áreas de ponderaçao. Também é possível notar que, diferentemente de todas as outra populações, as áreas de ponderação com o menor número de pessoas brancas somam cerca de 10.000 pessoas - exceção feita a dois casos.
+Considerando-se essa mesma separação, é seguro afirmar que nenhuma área de ponderação (ponto preto) possui 10.000 ou mais habitantes pretos, indígenas ou amarelos - limiar ultrapassado pelos residentes brancos e pardos em várias áreas de ponderaçao. Também é possível notar que, diferentemente de todas as outras populações, as áreas de ponderação com o menor número de pessoas brancas somam cerca de 10.000 pessoas - exceção feita a dois casos.
 
-O segundo gráfico, composto pela sobreposição entre o *gráfico de violino (linha tracejada e laranja)* e o *boxplot* , busca criar outro tipo de representação sobre a distribuição da população, por raça/cor, nas áreas de ponderação. Iniciando a leitura pelo *boxplot*, destaque-se que alguns elementos dessa representação costumam ser sempre observados. Um deles é a sua caixa, que perfaz a metade central de todo o conjunto dos dados. Com isso, é possível estimar para o caso da população branca que 50% das áreas onde essas pessoas residem variam de pouco mais de 16.000 pessoas a 26.000 (não se preocupe com a precisão nesse momento, pois os números corretos serão observados na tabela que será produzida a seguir). Já no caso da população parda esses valores parecem variar entre 5.000 e 15.000 pessoas.
+O segundo gráfico, composto pela sobreposição entre o *gráfico de violino (linha laranja)* e o *boxplot* , busca criar outro tipo de representação sobre a distribuição da população, por raça/cor, nas áreas de ponderação. Iniciando a leitura pelo *boxplot*, destaque-se que alguns elementos dessa representação costumam ser sempre observados. Um deles é a sua caixa, que perfaz a metade central de todo o conjunto dos dados. Com isso, é possível estimar, por exemplo, que metade da população branca varia entre 16 e 26 mil pessoas, considerando-se a sua distribuição por área de ponderação (não se preocupe com a precisão nesse momento, pois os números corretos serão observados na tabela que será produzida a seguir). Já no caso da população parda esses valores parecem variar entre 5.000 e 15.000 pessoas.
+
 
 O *boxplot* fornece, ainda, ao menos duas outras informações interessantes. A primeira diz respeito à linha vertical central da caixa, que indica onde se encontra a mediana. Ordenando-se os totais das populações do menor para o maior valor, a mediana é o valor que divide o conjunto de dados ao meio[^5]. No caso da população preta, por exemplo, esse valor parece estar próximo a 2.500 pessoas. A outra informação de interesse está relacionada aos pontos que aparecem para algumas raças/cores. Neste caso, eles indicam as áreas de ponderação cuja população é muito diferente de todo o restante - esses casos são chamados de pontos discrepantes ou *outliers.* Percebe-se, por exemplo, que a raça amarela possui algumas áreas de ponderação com uma população muito maior do que o comportamento geral para essa raça no município. Já no extremo oposto encontra-se a populaçao preta, que não apresenta nenhuma área de ponderação que foge do comportamento geral dessa raça/cor.
 

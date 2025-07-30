@@ -1,0 +1,16 @@
+[
+  {
+    "listing": "/blog/index.html",
+    "items": [
+      "/blog/first-post/index.html",
+      "/blog/04-post/Raca_cor_sp_orig.html",
+      "/blog/04-post/Raca_cor_sp.html",
+      "/blog/second-post/index.html",
+      "/blog/third-post/index.html"
+    ]
+  },
+  {
+    "listing": "/projects/index.html",
+    "items": []
+  }
+]
