@@ -7,6 +7,11 @@ image: "cover.jpg"
 categories:
   - Spatial distribution
   - Race
+format:
+  html:
+    code-overflow: wrap
+    code-fold: true
+    code-tools: true
 editor_options: 
   chunk_output_type: console
   output: false
@@ -158,7 +163,13 @@ Escolhidas as variáveis, o passo seguinte consiste em obter os dados propriamen
 
 Registre-se, em tempo, que após realizar todo o procedimento de acesso e manipulação para o ano de 2010, adiante o mesmo caminho será replicado com os dados dos censos de 2000 e 1991.
 
-[**CRIAR UMA CAIXA A PARTE**]{.underline}: Os dados da amostra do censo demográfico brasileiro costumam ser grandes e pesados, o que implica em um uso bastante intenso da memória RAM. Para lidar com esse comportamento do R (alocação dos dados na memória RAM), uma estratégia interessante é adotada pelo CENSOBR: preparar/estruturar o cômputo e gerá-lo apenas quando ele for explicitamente solicitado (mais detalhes podem ser vistos [aqui](https://ipeagit.github.io/censobr/articles/larger_than_memory.html)).
+:::{.callout-note}
+
+## Nota
+
+Os dados da amostra do censo demográfico brasileiro costumam ser grandes e pesados, o que implica em um uso bastante intenso da memória RAM. Para lidar com esse comportamento do R (alocação dos dados na memória RAM), uma estratégia interessante é adotada pelo CENSOBR: preparar/estruturar o cômputo e gerá-lo apenas quando ele for explicitamente solicitado (mais detalhes podem ser vistos [aqui](https://ipeagit.github.io/censobr/articles/larger_than_memory.html)).
+
+:::
 
 ```{r}
 #| label: download_census_2010
@@ -235,11 +246,16 @@ race_by_mun_2010 # <8>
 7.  Compute as proporções de pessoas para cada raça/cor e
 8.  Observe o resultado (quantidade e proporção de pessoas para cada raça/cor)
 
-Os dados gerados permitem que se construa um primeiro retrato sobre o total de pessoas por raça/cor no município de São Paulo em 2010.
+Os dados gerados permitem que se construa um primeiro retrato sobre o total de pessoas por raça/cor no município de São Paulo em 2010. A atual forma pode, contudo, ser alvo de melhorias. Assim sendo, propõe-s uma nova tabela para os dados recém-obtidos. Nela, como pode ser visto, existem menos variáveis, os nomes das variáveis são mais intuitivos (facilitando a leitura), os dados foram reordenados - do grupo com mais pessoas para o que possui menos - e ela é esteticamente mais atraente. Tais medidas, facilmente implementadas, ajudam a manter o foco do leitor no que realmente importa e facilitam a leitura e compreensão dos dados.
 
-[**CRIAR UMA CAIXA A PARTE**]{.underline}: Tão relevante quanto a geração de dados é a comunicação dos achados - algo que, aos poucos e na medida do possível, será explorado no presente texto. Isso porque, caso a sua publicização não seja adequada, o impacto gerado, na melhor das hipóteses, deixará de atingir toda a sua potencialidade. Ou seja, não desconsidere esse fator!
+:::{.callout-note}
 
-A seguir, uma nova versão da tabela recém-criada é apresentada. Nela, como pode ser visto, existem menos variáveis, os nomes das variáveis são mais intuitivos (facilitando a leitura), os dados foram reordenados - do grupo com mais pessoas para o que possui menos - e ela é esteticamente mais atraente. Tais medidas, facilmente implementadas, ajudam a manter o foco do leitor no que realmente importa e facilitam a leitura e compreensão dos dados.
+## Nota
+
+Tão relevante quanto a geração de dados é a comunicação dos achados - algo que, aos poucos e na medida do possível, será explorado no presente texto. Isso porque, caso a sua publicização não seja adequada, o impacto gerado, na melhor das hipóteses, deixará de atingir toda a sua potencialidade. Ou seja, não desconsidere esse fator!
+
+:::
+
 
 ```{r}
 #| label: table_race_by_mun
@@ -365,7 +381,7 @@ race_by_ap_2010
 
 O resultado produzido está no que se costuma chamar de *base ou tabela de forma longa*. Mais adequada para a manipulação de dados, percebe-se que para cada área de ponderação são apresentadas todas as categorias da variável raça/cor, dispostas verticalmente, bem como os seus valores. Tomando-se como exemplo a primeira área de ponderação, 3550308005001, verifica-se que a primeira linha é destinada à raça branca, a segunda à preta, a terceira à amarela e assim por diante. Essa disposição é, então, retomada quando se inicia a segunda área de ponderação, 3550308005002, com a linha sete apresentando os dados para a raça branca, a linha oito para a raça preta, etc. Tal forma, saliente-se, nem sempre facilita a visualização e o entendimento do que se quer investigar.
 
-Tendo isso em vista, a seguir os mesmos dados serão apresentados a partir da chamada *forma longa*. Como poderá ser visto, dessa vez cada área de ponderação ocupa apenas uma linha da tabela. As categorias da variável raça/cor, por sua vez, são transpostas para as colunas.
+Tendo isso em vista, a seguir os mesmos dados serão apresentados a partir da chamada *forma ampla ou larga*. Como poderá ser visto, dessa vez cada área de ponderação ocupa apenas uma linha da tabela. As categorias da variável raça/cor, por sua vez, são transpostas para as colunas.
 
 ```{r}
 #| label: race_distrib_ap_mun_sp_transp
@@ -411,7 +427,7 @@ A partir das últimas tabelas, que apresetam os *valores absolutos* (número tot
 
 Em situações desse tipo, com bases de dados extensas, usualmente recorre-se a estratégias para sintetizá-los e explicitar eventuais padrões. Uma delas, inclusive, já foi explorada: o uso de *ferramentas baseadas em visualização de dados*, como os gráficos. A ela, some-se a geração de medidas *síntese de localização*, tal qual a famigerada *média*, e *de dispersão*, dentre as quais pode ser citado o *desvio padrão*.
 
-A seguir, dois tipos de gráficos ("*pontos"* e "*boxplot + violino"*) e uma tabela (composta por medidas de resumo) serão apresentados. Mais do que replicar as mesmas informações em formatos distintos, o que se espera é que eles se complementem e possibilitem uma leitura mais rica e acurada. 
+A seguir, dois tipos de gráficos (*"pontos"* e *"boxplot + violino"*) e uma tabela (composta por medidas de resumo) serão apresentados. Mais do que replicar as mesmas informações em formatos distintos, o que se espera é que eles se complementem e possibilitem uma leitura mais rica e acurada. 
 
 Iniciando a exploração com os gráficos, forma mais intuitiva, almeja-se verificar se alguns indícios ou padrões revelam-se a partir de uma análise visual. A partir das intuições encontradas e/ou questionamentos levantados (lembre-se: os questionamentos são a base da ciência!), em um segundo momento serão computados elementos "mais precisos" (estatísticas) para uma melhor descrição e caracterização da distribuição espacial da raça/cor, agregados em formato de tabela.
 
@@ -479,7 +495,7 @@ Obervando-se a localização dos pontos, verifica-se, por exemplo, que enquanto 
 
 Considerando-se essa mesma separação, é seguro afirmar que todas as áreas de ponderação do município de São Paulo (ponto preto) possuem menos de 10.000 habitantes pretos, indígenas ou amarelos - limiar ultrapassado pelos residentes brancos e pardos em várias áreas de ponderaçao. Também é possível notar que, diferentemente de todas as outras populações, as áreas de ponderação com o menor número de pessoas brancas somam cerca de 10.000 pessoas - exceção feita a dois casos.
 
-O segundo gráfico, composto pela sobreposição entre o *gráfico de violino (linha laranja)* e o *boxplot* , busca representar a distribuição da população, por raça/cor e áreas de ponderação, de outra forma. Iniciando-se a leitura pelo *boxplot*, destaque-se que alguns elementos dessa representação costumam ser sempre observados. Um deles é a sua caixa, que perfaz a metade central de todo o conjunto dos dados. Com isso, é possível estimar, por exemplo, que metade da população branca varia entre 16 e 26 mil pessoas, considerando-se a sua distribuição por área de ponderação. Já no caso da população parda esses valores parecem variar entre 5.000 e 15.000 pessoas (não se preocupe com a precisão nesse momento, pois os números corretos serão observados na tabela que produzida a seguir).
+O segundo gráfico, composto pela sobreposição entre o *gráfico de violino (linha laranja)* e o *boxplot* , busca representar a distribuição da população, por raça/cor e áreas de ponderação, de outra forma. Iniciando-se a leitura pelo *boxplot*, destaque-se que alguns elementos dessa representação costumam ser sempre observados. Um deles é a sua caixa, que perfaz a metade central de todo o conjunto dos dados. Com isso, é possível estimar, por exemplo, que metade da população branca varia entre 16 e 26 mil pessoas, considerando-se a sua distribuição por área de ponderação. Já no caso da população parda esses valores parecem variar entre 5.000 e 15.000 pessoas (não se preocupe com a precisão nesse momento, pois os números corretos serão observados na tabela produzida mais adiante).
 
 O *boxplot* fornece, ainda, ao menos duas outras informações interessantes. A primeira diz respeito à linha vertical central da caixa, que indica onde se encontra a mediana. Ordenando-se os totais das populações do menor para o maior valor, a mediana é o valor que divide o conjunto de dados ao meio[^5]. No caso da população preta, por exemplo, esse valor parece estar próximo a 2.500 pessoas.
 
@@ -524,17 +540,17 @@ tab_race_metrcs_ap |>
 6.  Defina nomes mais intuitivos para as variáveis, e,
 7.  Crie uma tabela mais visualemente atrativa.\|
 
-A partir dos valores da tabela, verifica-se que as percepções obtidas por meio dos gráficos é corroborada pelos números. Um dos achados obtidos visualmente indicava, por exemplo, uma maior concentração dos valores das populações preta, amarela e indígena por área de ponderação - a grosso modo, cria-se a noção de que a distribuição dessas raças ao longo do território era mais parecido (ou menos diferente) do que o encontrado para as raças brancas e parda. Recorrendo-se ao *Intervalo Interquaril* (IQR) para quantificar esse comportamento[^6]*,* constata-se que a diferença das populações por área de ponderação para as raças branca e preta é de 9.494 e 10.508 pessoas, respectivamente. Por sua vez, ao se considerar as populações preta, amarela e indígena, essa diferença é de 1.912, 703 e 48 pessoas. Ou seja, mesmo considerando-se a diferença entre a população branca (menor valor do grupo mais disperso, de acordo com o IQR) e a população preta (maior valor do grupo mais concentrado), a dispersão ou variabilidade é cinco vezes maior a favor da raça branca (9.494 pessoas brancas/1.912 pessoas pretas).
+A partir dos valores da tabela, verifica-se que as percepções obtidas por meio dos gráficos é corroborada pelos números. Um dos achados obtidos visualmente indicava uma maior concentração dos valores das populações preta, amarela e indígena por área de ponderação - levando, a grosso modo, à noção de que a distribuição dessas raças ao longo do território era mais parecido (ou menos diferente) do que o encontrado para as raças brancas e parda. Recorrendo-se ao *Intervalo Interquaril* (IQR) para quantificar esse comportamento[^6]*,* constata-se que a diferença das populações por área de ponderação para as raças branca e preta é de 9.494 e 10.508 pessoas, respectivamente. Por sua vez, ao se considerar as populações preta, amarela e indígena, essa diferença é de 1.912, 703 e 48 pessoas. Ou seja, mesmo considerando-se a diferença entre a população branca (menor valor do grupo mais disperso, de acordo com o IQR) e a população preta (maior valor do grupo mais concentrado), a dispersão ou variabilidade é cinco vezes maior a favor da raça branca (9.494 pessoas brancas/1.912 pessoas pretas).
 
 [^6]: o IQR é uma medida de dispersão robusta que computa a diferença entre os valores do primeiro e terceiro quartis dos dados.
 
 Observando-se as menores quantidades de pessoas por raça/cor presentes nas áreas de ponderação (coluna "Menor valor" da tabela), percebe-se que enquanto existe ao menos uma área de ponderação que não possui indígenas - valor que salta para ao menos 25% das áreas de ponderação, dado que o valor do 1º quartil é 0[^7] -, o menor número de pessoas brancas em uma área de ponderação no município é de 4.160. Esse valor, aliás, é maior do que o encontrado em ao menos 75% de todas as áreas de ponderação para as raças/cores preta, amarela e indígena (observe e compare os dados a partir da coluna do 3º quartil).
 
-[^7]: Observando-se a tabela com os dados brutos, nota-se que 110, das 310 áreas de ponderação do município de São Paulo, não possuem indígenas residentes.
+[^7]: Observando-se a tabela com os dados brutos, nota-se que 110, das 310 áreas de ponderação do município de São Paulo, não possuem indígenas residentes (cerca de 35%).
 
 Em sentido oposto, ao se considerarem as maiores quantidades de pessoas por raça/cor e área de ponderação (coluna "Maior valor"), agora é possível mensurar e identificar as áreas que possuem as maiores populações preta (6.208 pessoas), amarela (6.940) e indígena (1.005). Dado que a simples comparação desse valor com o do 3º quartil para cada uma dessas raças/cores indica uma diferença não desprezível, pode-se aventar ou suspeitar que algo ocorreu/ocorre nessas porções do território, fomentando essa concentração espacial.
 
-Operando-se de forma similar, verifica-se que as estatísticas da tabela especificam as medidas anteriormente obtidas por meio dos gráficos. Dessa forma, as aproximações geradas para os percentis 25º e 75º (medidas limites da caixa do *boxplot*), bem como para o 50º (mediana), agora são mensuradas e localizadas de forma mais precisa. No caso da população preta, por exemplo, o primeiro, segundo (mediana) e terceiro quartis correspondem a 1.274, 2.264 e 3.186 pessoas. Por sua vez, essas mesmas medidas para a população parda perfazem e 5.276, 11.051 e 11.120 pessoas.
+Operando-se de forma similar, verifica-se que as estatísticas da tabela especificam as medidas anteriormente obtidas por meio dos gráficos. Dessa forma, as aproximações geradas para os percentis 25º e 75º (medidas/linhas limites da caixa do *boxplot*), bem como para o 50º (mediana, representanda pela linha dentro da caixa), agora são mensuradas e localizadas de forma mais precisa. No caso da população preta, por exemplo, o primeiro, o segundo (mediana) e o terceiro quartis correspondem a 1.274, 2.264 e 3.186 pessoas. Por sua vez, essas mesmas medidas para a população parda perfazem e 5.276, 11.051 e 11.120 pessoas.
 
 Para finalizar essa etapa de "contextualização regional", duas novas estratégias serão rapidamente exploradas. Enquanto a primeira está baseada no tamanho das áreas de ponderação, como um todo (ou seja, considerando todas as raças/cores), a segunda abordará a questão a partir do tamanho da população negra (pessoas pardas + pessoas pretas).
 
@@ -556,14 +572,15 @@ race_by_ap_2010_wider_pos_abs <- race_by_ap_2010_wider |> # <1>
   rename(total = tot_pop) |> # <4>
   arrange(desc(total)) # <5>
 
-tab_race_ap5_mean_abs <- race_by_ap_2010_wider_pos_abs |> 
+tab_race_ap5_abs <- race_by_ap_2010_wider_pos_abs |> 
   slice_head(n = 5) # <6>
 
-tab_race_ap5_mean_abs |>
-  set_names("AP", "Branca", "Parda", "Preta", "Amarela", "Indígena", "Ignorado", "Total", "Branca (Pos)", "Parda (Pos)", "Preta (Pos)", "Amarela (Pos)", "Indígena (Pos)", "Total (Pos)") |> # <7>
-  mutate(Negra = Parda + Preta) |>
-  relocate(Negra, .after = Preta) |>
+tab_race_ap5_abs |>
+  set_names("AP", "Branca", "Parda", "Preta", "Amarela", "Indígena", "Ignorado", "Total", "Branca (Rank)", "Parda (Rank)", "Preta (Rank)", "Amarela (Rank)", "Indígena (Rank)", "Total (Rank)") |> # <7>
+  # mutate(Negra = Parda + Preta) |>
+  # relocate(Negra, .after = Preta) |>
   gt() # <8>
+
 
 # Select only the proportion values and rank all the race categories
 race_by_ap_2010_wider_pos_prop <- race_by_ap_2010_wider |> # <9>
@@ -579,9 +596,15 @@ race_by_ap_2010_wider_pos_prop <- race_by_ap_2010_wider |> # <9>
   rename(total = tot_pop) |> 
   arrange(desc(total))
 
-race_by_ap_2010_wider_pos_prop |> 
-  slice_head(n = 5) |> 
+tab_race_ap5_prop <- race_by_ap_2010_wider_pos_prop |> 
+  slice_head(n = 5) 
+
+tab_race_ap5_prop |>
+  set_names("AP", "Branca %", "Parda %", "Preta %", "Amarela %", "Indígena %", "Ignorado %", "Total", "Branca % (Rank)", "Parda % (Rank)", "Preta % (Rank)", "Amarela % (Rank)", "Indígena % (Rank)", "Total % (Rank)") |> # <7>
+  # mutate(`Negra %` = `Parda %` + `Preta %`) |>
+  # relocate(`Negra %`, .after = `Preta %`) |>
   gt()
+
 ```
 
 1.  Selecione a base de interesse e crie um objeto para salvar os resultados;
@@ -594,30 +617,36 @@ race_by_ap_2010_wider_pos_prop |>
 8.  Gere uma tabela mais visualmente atrativa, e,
 9.  Repita o mesmo procedimento, mas agora considerando as proporções populacionais por raça/cor e área de ponderação.
 
-A partir dos dados gerados, verifica-se que as cinco áreas de ponderação (AP) mais populosas do município de São Paulo variam de 56.989 a 53.366 pessoas (com uma média de 55.108 pessoas). E tal qual ocorre no município, as raças branca e parda concentram os maiores quantitativos de pessoas (para o município, cerca de 61% e 31%), sendo seguidas mais de longe pela pessoas pretas, amarelas e indígenas.
+A partir dos dados gerados, verifica-se que as cinco áreas de ponderação (AP) mais populosas do município de São Paulo variam de 56.989 a 53.366 pessoas (com uma média de 55.108 pessoas). E tal qual ocorre no município, as raças branca e parda concentram os maiores quantitativos de pessoas (cerca de 61% e 31%) nessas áreas, sendo seguidas mais de longe pela pessoas pretas, amarelas e indígenas.
 
-Ressalte-se, contudo, que a distância encontrada nesses casos é bem menor. Computando-se duas medidas de tendência central, constata-se que os totais médio e mediano de pessoas brancas dessas cinco AP são de `r mean(tab_race_ap5_mean_abs$branca) |> round()` e `r median(tab_race_ap5_mean_abs$branca) |> round()`. Já no caso das pessoas pardas, eles correspondem a `r mean(tab_race_ap5_mean_abs$parda) |> round()` e `r median(tab_race_ap5_mean_abs$branca) |> round()`. 
+Ressalte-se, contudo, que a distância encontrada nesses casos é bem menor. Computando-se duas medidas de tendência central, constata-se que os totais médio e mediano de pessoas brancas dessas cinco AP são de `r mean(tab_race_ap5_abs$branca) |> round()` e `r median(tab_race_ap5_abs$branca) |> round()`. Já no caso das pessoas pardas, eles correspondem a `r mean(tab_race_ap5_abs$parda) |> round()` e `r median(tab_race_ap5_abs$branca) |> round()`. 
 
-Também é possível verificar que nas duas AP com o maior número de residentes do município (3550308005259 e 3550308005189, especificamente) ocorre uma inversão entre as raças/cores branca e parda. Totalizando 49,9% (28.449) e 44,4% (24.747), nelas a população parda supera a branca (a leitura espacial a seguir indicará que essas duas AP estão localizadas nos distritos do Lajeado, extremo leste do município, e Brasilândia, na Zona Norte).
+Também é possível verificar que nas duas AP com o maior número de residentes do município (3550308005259 e 3550308005189) ocorre uma inversão entre as raças/cores branca e parda. Totalizando 49,9% (28.449 pessoas) e 44,4% (24.747), a população parda ali presente supera a branca - a leitura espacial a seguir indicará que essas duas AP estão localizadas nos distritos do Lajeado, extremo leste do município, e da Brasilândia, na Zona Norte. Mais: caso se considere a população negra (preta + parda), apenas a AP 3550308005237 possui mais residentes brancos - com 53% de brancos e 45% de negros, essa área está localizada no distrito do Campo Limpo. Para as quatro AP restantes, os números da população negra variam de 51% do total a 59% (27.992 a 33.649 pessoas, respectivamente).
 
+Passa-se, agora, para alguns breves comentários baseados no ranqueamento das raças/cores para as cinco AP analisadas. Antes, contudo, é importante reforçar que o ordenamento foi realizado do maior valor (que ocupa a posição 1) para o menor (que ocupa a posição 310). Com isso, torna-se possível "olhar para dentro" de cada raça/cor e entender a sua distribuição territorial específica.
+
+Consideranço-se apenas os totais populacionais (valores absolutos), verifica-se, de forma geral, que as cinco AP mais populosas também apresentam grandes contingentes de pessoas pardas e negras . Observa-se, por exemplo, que quatro das cinco AP mais populosas do município estão entre as 10 AP mais pardas do município (posições 2, 3, 4 e 10). No caso da população preta, o mesmo ocorre para três dos cinco casos analisados (posições 1, 8 e 5). Apenas para efeito de comparação, a AP que possui o maior número de pessoas brancas (28.194) dentre as 5 AP mais populosas do município ocupa apenas a posição 51 no _ranking_ de AP da raça/cor branca.
+
+A seguir, as cinco AP analisadas são espacializadas. Localizadas em diferentes partes do território (zonas Leste, Norte e Sul), percebe-se com relativa facilidade um traço comum: todas se encontram em regiões periféricas do município.
 
 ```{r}
+#| label: map_5_rank_pop_ap_mun_sp
 
-# Select the five AP with the highest population
+# Select the 1st five AP with the highest population
 ## Get the AP spatial limits
 ap_mun_sp <- read_weighting_area(code_weighting = 3550308, year = 2010) # <1>
 
-## Find out the code of the five AP with the highest population from the aspatial data set
+## Find out the code of the 1st five AP with the highest population from the aspatial data set
 top_5_ap_abs <- race_by_ap_2010_wider_pos_prop |> 
   slice_head(n = 5) |> 
   pull(ap)
 
-## Filter the 5 AP spatial limits of interest 
+## Filter the 1st 5 AP spatial limits of interest 
 ap_geo_sel <- ap_mun_sp |> 
   filter(code_weighting %in% top_5_ap_abs) 
 
 
-# Get the district spatial limits
+# Get the district spatial limits for SP munic
 distrito_mun_sp <- read_neighborhood(year = 2010) |>
   filter(code_muni == 3550308) |> 
   select(abbrev_state, name_muni, code_district, name_district)
@@ -628,8 +657,25 @@ mapview(distrito_mun_sp, zcol = "name_district", color = "gray35", col.regions =
 
 ```
 
-.diferentes estratégias de análise podem ser adotadas. Iniciando-se pelo
+Para o desenvovlimento da segunda estratégia, propõe-se uma leitura mais integrada entre os dados e sua distribuição espacial. Nesse sentido, a espacialização não cumprirá, apenas, o papel de formalizar os achados. Diferetemente do realizado anteriormente, agora ela também contribuirá mais ativamente para a produção dos achados.
 
+Inicialmente, serão selecionadas as áreas cinco áreas de ponderaçao com as maiores populações negras. O ranqueamento criado poderia ser utilizado para essa finalidade. Contudo, um caminho distinto é proposto.
+
+```{r}
+
+tab_black_ap5_abs <- race_by_ap_2010_wider_pos_abs |>
+  mutate(negra = parda + preta)  |> 
+  relocate(negra, .after = preta) |> 
+  arrange(desc(negra))
+
+tab_black_ap5_abs |>   
+  # select(!ends_with("_rank")) |> 
+  # set_names("AP", "Branca", "Parda", "Preta", "Amarela", "Indígena", "Ignorado", "Total")
+  set_names("AP", "Branca", "Parda", "Preta", "Negra", "Amarela", "Indígena", "Ignorado", "Total", "Branca (Rank)", "Parda (Rank)", "Preta (Rank)", "Amarela (Rank)", "Indígena (Rank)", "Total (Rank)") |> 
+  gt()
+  
+
+```
 
 Em seguida, serão selecionadas as áreas de ponderação com a maior população negra.
 
