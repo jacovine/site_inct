@@ -15,6 +15,7 @@ format:
 editor_options: 
   chunk_output_type: console
   output: false
+  warning: false
 engine: knitr
 ---
 
@@ -46,7 +47,15 @@ Antes da exploração proposta, vale mencionar que dois pilares conduzem a anál
 
 Uma prática bastante usual ao escrever códigos no R consiste em "declarar/ativar" os pacotes (de funções) no início do *script* - por vezes isso também ocorre com as variáveis que serão utilizadas ao longo do percurso. Ainda que não seja obrigatória, essa prática permite que as funções sejam utilizadas sem que se explicite o nome do pacote (no R, para declarar o pacote e uma de suas funções segue-se a seguinte forma: *pacote::função*).
 
-A seguir, duas formas para instalar e ativar os pacotes necessários são apresentadas. Gerando o mesmo resultado (ativação dos pacotes), a diferença entre a primeira forma (1st Way) e a segunda (2nd Way) é que na última o código checa os pacotes presentes no ambiente local/computador do usuário e apenas instala os que ainda não foram baixados. Já no primeiro caso, mesmo que o pacote já esteja instalado, o comando baixará novamente o seu conteúdo e o reinstalará. Note: aqui, para tornar mais claro o que está ocorrendo no segundo caminho de instalação, optou-se por inserir mensagens indicando se o pacote já estava instalado ou não (graças ao uso do comando *print("mensagem_a_ser_exibida")*). Observe, ainda, que o símbolo ***\#*** é utilizado para a inserção de comentários no código, algo tido como uma boa prática. Ou seja, sempre que se fizer uso desse símbolo, o conteúdo que vier imediatamente após ele será "ignorado" pelo R.
+A seguir, duas formas para instalar e ativar os pacotes necessários são apresentadas. Gerando o mesmo resultado (ativação dos pacotes), a diferença entre a primeira forma (1st Way) e a segunda (2nd Way) é que na última o código checa os pacotes presentes no ambiente local/computador do usuário e apenas instala os que ainda não foram baixados. Já no primeiro caso, mesmo que o pacote já esteja instalado, o comando baixará novamente o seu conteúdo e o reinstalará. Note: para tornar mais claro o que está ocorrendo no segundo caminho de instalação, optou-se por inserir mensagens indicando se o pacote já estava instalado ou não (graças ao uso do comando *print("mensagem_a_ser_exibida")*). Observe, ainda, que o símbolo ***\#*** é utilizado para a inserção de comentários no código, algo tido como uma boa prática. Ou seja, sempre que se fizer uso desse recurso, o conteúdo que vier imediatamente após ele será "ignorado"
+
+::: callout-note
+
+## Nota
+
+O uso de comentários proporciona uma maior inteligibilidade do código e conversa diretamente com a possibilidade de reprodutibilidade do trabalho. Para exemplificar o ponto, pense que você e/ou outras pessoas podem revisitar o código no futuro e alguns detalhes podem não estar mais tão claros.
+
+:::
 
 ```{r}
 #| label: load_packages
@@ -54,7 +63,7 @@ A seguir, duas formas para instalar e ativar os pacotes necessários são aprese
 #| output: false
 
 # Save all the packages needed inside an object ("folder")
-pckgs <- c("tidyverse", "sf", "here", "janitor", "arrow", "censobr", "geobr", "sidrar", "gt", "devtools", "mapview", "terra", "patchwork") # <1>
+pckgs <- c("tidyverse", "sf", "here", "janitor", "arrow", "censobr", "geobr", "sidrar", "gt", "devtools", "mapview", "terra", "patchwork", "RColorBrewer", "leafsync") # <1>
 
 # 1st way 
 ## Install all the packages previously selected
@@ -115,7 +124,7 @@ census_year = 2010 # Possible years: 1960, 1970, 1980, 1991, 2000, 2010. See: ht
 
 O próximo passo consiste em descobrir e escolher quais variáveis do censo retratam a questão e/ou o fenômeno a ser analisado (no presente caso, a raça/cor). Para isso, deve-se recorrer ao dicionário de variáveis.
 
-Antes, porém, é importante relembrar que os dados censitários demográficos produzidos pelo IBGE são disponibilizados a partir de dois grandes tipos: os **microdados** (dados da amostra) e os **agregados por setor censitário** (dados do universo)[^2]. Ambos os dados podem ser acessados por meio do pacote CENSOBR[^3], ainda que o foco da presente exploração baseie-se nos microdados, como anteriormente sinalizado.
+Antes, porém, é importante relembrar que os dados censitários demográficos produzidos pelo IBGE são disponibilizados a partir de dois grandes tipos: os **microdados** (dados da amostra) e os **agregados por setor censitário** (dados do universo)[^2]. Ambos os dados podem ser acessados por meio do pacote [CENSOBR](https://ipeagit.github.io/censobr/articles/censobr.html)[^3], ainda que o foco da presente exploração baseie-se nos microdados, como anteriormente sinalizado.
 
 [^2]: Ainda que sejam mais usalmente utilizados, alguns dados censitários também são disponibilizados em outros formatos, como as grades estatísticas(https://mapasinterativos.ibge.gov.br/grade2022/default.html).
 
@@ -163,12 +172,10 @@ Escolhidas as variáveis, o passo seguinte consiste em obter os dados propriamen
 
 Registre-se, em tempo, que após realizar todo o procedimento de acesso e manipulação para o ano de 2010, adiante o mesmo caminho será replicado com os dados dos censos de 2000 e 1991.
 
-:::{.callout-note}
-
+::: callout-note
 ## Nota
 
 Os dados da amostra do censo demográfico brasileiro costumam ser grandes e pesados, o que implica em um uso bastante intenso da memória RAM. Para lidar com esse comportamento do R (alocação dos dados na memória RAM), uma estratégia interessante é adotada pelo CENSOBR: preparar/estruturar o cômputo e gerá-lo apenas quando ele for explicitamente solicitado (mais detalhes podem ser vistos [aqui](https://ipeagit.github.io/censobr/articles/larger_than_memory.html)).
-
 :::
 
 ```{r}
@@ -246,16 +253,13 @@ race_by_mun_2010 # <8>
 7.  Compute as proporções de pessoas para cada raça/cor e
 8.  Observe o resultado (quantidade e proporção de pessoas para cada raça/cor)
 
-Os dados gerados permitem que se construa um primeiro retrato sobre o total de pessoas por raça/cor no município de São Paulo em 2010. A atual forma pode, contudo, ser alvo de melhorias. Assim sendo, propõe-s uma nova tabela para os dados recém-obtidos. Nela, como pode ser visto, existem menos variáveis, os nomes das variáveis são mais intuitivos (facilitando a leitura), os dados foram reordenados - do grupo com mais pessoas para o que possui menos - e ela é esteticamente mais atraente. Tais medidas, facilmente implementadas, ajudam a manter o foco do leitor no que realmente importa e facilitam a leitura e compreensão dos dados.
+Os dados gerados permitem que se construa um primeiro retrato sobre o total de pessoas por raça/cor no município de São Paulo em 2010. A atual forma pode, contudo, ser alvo de melhorias. Assim sendo, propõe-s uma nova tabela para os dados recém-obtidos. Nela, como pode ser visto, existem menos variáveis, os nomes das variáveis são mais intuitivos (facilitando a leitura), os dados foram reordenados - do grupo com mais pessoas para o que possui menos - e ela é esteticamente mais atraente. Tais medidas, facilmente implementadas, ajudam a manter o foco  no que realmente importa e facilitam a leitura e compreensão dos dados.
 
-:::{.callout-note}
-
+::: callout-note
 ## Nota
 
 Tão relevante quanto a geração de dados é a comunicação dos achados - algo que, aos poucos e na medida do possível, será explorado no presente texto. Isso porque, caso a sua publicização não seja adequada, o impacto gerado, na melhor das hipóteses, deixará de atingir toda a sua potencialidade. Ou seja, não desconsidere esse fator!
-
 :::
-
 
 ```{r}
 #| label: table_race_by_mun
@@ -344,11 +348,11 @@ race_mun_graph # <10>
 9.  Escolha como o fundo e os elementos dos eixos devem ser visualizados, e,
 10. Apresente o gráfico.
 
-A partir do gráfico, verifica-se, por exemplo, que cerca de 3/5 (60,6%) da população paulistana se autodeclarou branca em 2010. A população negra (parda + preta), por sua vez, respondeu por 37% de todos os paulistanos e paulistanas. No extremo oposto encontram-se as pessoas direta ou indiretamente vinculadas aos povos asiáticos (amarelos) e à população indígena. Presentes em nosso território antes da colonização europeia, os povos originários do Brasil representavam apenas 0,1% dos e das paulistanas em 2010, perfazendo quase treze mil pessoas.
+A partir da tabela e do gráfico, verifica-se, por exemplo, que cerca de 3/5 (60,6%) da população paulistana se autodeclarou branca em 2010. A população negra (parda + preta), por sua vez, respondeu por 37% de todos os paulistanos e paulistanas. No extremo oposto encontram-se as pessoas com algum tipo ascendência dos povos asiáticos (amarelos) e à população indígena. Presentes em nosso território antes da colonização europeia, os povos originários do Brasil representavam apenas 0,1% dos e das paulistanas em 2010, totalizando quase treze mil pessoas.
 
 ## Analisando os dados: avançando no entendimento sobre a distribuição da raça/cor nas diferentes partes do território municipal (áreas de ponderação)
 
-De forma a aprofundar o conhecimento sobre a área de interesse aqui tratada (região da Liberdade), a seguir será explorada a distribuição da raça/cor por área de ponderação. Ao revisitar a temática em uma escala mais detalhada, comparações entre regiões tornam-se possíveis, com novos subsídios e/ou padrões podendo ser revelados (para o município e para a área de interesse).
+De forma a aprofundar o conhecimento sobre a área de interesse aqui tratada (região da Liberdade), a partir desse momento passa-se a explorar a distribuição da raça/cor por área de ponderação. Ao revisitar a temática em uma escala mais detalhada, comparações entre regiões tornam-se possíveis, com novos subsídios e/ou padrões podendo ser revelados (para o município e para a área de interesse).
 
 A seguir, o código gera a distribuição da população por raça/cor para cada uma das áreas de ponderação do município de São Paulo.
 
@@ -379,7 +383,7 @@ race_by_ap_2010
 
 ```
 
-O resultado produzido está no que se costuma chamar de *base ou tabela de forma longa*. Mais adequada para a manipulação de dados, percebe-se que para cada área de ponderação são apresentadas todas as categorias da variável raça/cor, dispostas verticalmente, bem como os seus valores. Tomando-se como exemplo a primeira área de ponderação, 3550308005001, verifica-se que a primeira linha é destinada à raça branca, a segunda à preta, a terceira à amarela e assim por diante. Essa disposição é, então, retomada quando se inicia a segunda área de ponderação, 3550308005002, com a linha sete apresentando os dados para a raça branca, a linha oito para a raça preta, etc. Tal forma, saliente-se, nem sempre facilita a visualização e o entendimento do que se quer investigar.
+O resultado produzido está no que se costuma chamar de *base ou tabela de forma longa*. Mais adequada para a manipulação de dados, percebe-se que para cada área de ponderação são apresentadas todas as categorias da variável raça/cor, dispostas verticalmente, bem como os seus valores. Tomando-se como exemplo a primeira área de ponderação, 3550308005001, verifica-se que a primeira linha é destinada à raça branca, a segunda à preta, a terceira à amarela e assim por diante. Essa disposição é, então, retomada quando se inicia a segunda área de ponderação, 3550308005002, com a sétima linha  apresentando os dados para a raça branca, a oitava para a raça preta, etc. Tal forma, saliente-se, nem sempre facilita a visualização e o entendimento do que se quer investigar.
 
 Tendo isso em vista, a seguir os mesmos dados serão apresentados a partir da chamada *forma ampla ou larga*. Como poderá ser visto, dessa vez cada área de ponderação ocupa apenas uma linha da tabela. As categorias da variável raça/cor, por sua vez, são transpostas para as colunas.
 
@@ -425,9 +429,9 @@ head(race_by_ap_2010_wider[c(1, 8:14)], n = 10) |> # <9>
 
 A partir das últimas tabelas, que apresetam os *valores absolutos* (número total/volume/montante de pessoas) e *relativos* (proporção de pessoas), verifica-se uma disposição dos dados mais amigável. Um desafio persiste, porém: o município de São Paulo é composto por 310 áreas de ponderação. Ou seja, a tabela é constituída por 310 linhas, tornando a apreensão do todo difícil.
 
-Em situações desse tipo, com bases de dados extensas, usualmente recorre-se a estratégias para sintetizá-los e explicitar eventuais padrões. Uma delas, inclusive, já foi explorada: o uso de *ferramentas baseadas em visualização de dados*, como os gráficos. A ela, some-se a geração de medidas *síntese de localização*, tal qual a famigerada *média*, e *de dispersão*, dentre as quais pode ser citado o *desvio padrão*.
+Em situações desse tipo, com bases de dados extensas, usualmente recorre-se a estratégias para sintetizá-los e explicitar eventuais padrões. Uma delas, inclusive, já foi explorada: o uso de *ferramentas baseadas em visualização de dados*, como os gráficos. A ela, some-se a geração de medidas *síntese de localização*, tal qual a famigerada *média*, e *de dispersão*, dentre as quais uma das mais conhecidas é o *desvio padrão*.
 
-A seguir, dois tipos de gráficos (*"pontos"* e *"boxplot + violino"*) e uma tabela (composta por medidas de resumo) serão apresentados. Mais do que replicar as mesmas informações em formatos distintos, o que se espera é que eles se complementem e possibilitem uma leitura mais rica e acurada. 
+A seguir, dois tipos de gráficos (*"pontos"* e *"boxplot + violino"*) e uma tabela (composta por medidas de resumo) serão apresentados. Mais do que replicar as mesmas informações em formatos distintos, o que se espera é que eles se complementem e possibilitem uma leitura mais rica e acurada.
 
 Iniciando a exploração com os gráficos, forma mais intuitiva, almeja-se verificar se alguns indícios ou padrões revelam-se a partir de uma análise visual. A partir das intuições encontradas e/ou questionamentos levantados (lembre-se: os questionamentos são a base da ciência!), em um segundo momento serão computados elementos "mais precisos" (estatísticas) para uma melhor descrição e caracterização da distribuição espacial da raça/cor, agregados em formato de tabela.
 
@@ -491,7 +495,7 @@ graf_race_ap_2010_res <- race_by_ap_2010 |> # <1>
 
 Como pode ser visto, três gráficos são apresentados. Note-se, contudo, que tanto o primeiro quanto o segundo tratam de um mesmo tipo de representação (*gráfico de pontos*). Neles, os pontos indicam qual é a população total de cada uma das áreas de ponderação por raça/cor - a diferença, aqui explorada para fins didáticos, reside no fato do segundo gráfico apresentar dados ligeiramente deslocados de seu valor real, uma técnica usada para facilitar a análise e a apreensão de padrões.
 
-Obervando-se a localização dos pontos, verifica-se, por exemplo, que enquanto as populações preta, indígena e amarela apresentam valores mais concentrados (maior número de pontos próximos e/ou sobrepostos, reforçando a cor preta), no caso das populações pardas e branca o total de pessoas nas áreas de ponderação está mais disperso (há uma maior variabilidade).
+Obervando-se a localização dos pontos, verifica-se, por exemplo, que enquanto as populações preta, indígena e amarela apresentam valores mais concentrados (maior número de pontos próximos e/ou sobrepostos, reforçando a cor preta), no caso das populações pardas e branca o total de pessoas nas áreas de ponderação está mais disperso (há uma maior variabilidade). Grosso modo, poder-se-ia dizer que o tamanho das populações preta, indígena e amarela, por área de ponderação, é mais parecido do que o encontrado para as populações branca e parda.
 
 Considerando-se essa mesma separação, é seguro afirmar que todas as áreas de ponderação do município de São Paulo (ponto preto) possuem menos de 10.000 habitantes pretos, indígenas ou amarelos - limiar ultrapassado pelos residentes brancos e pardos em várias áreas de ponderaçao. Também é possível notar que, diferentemente de todas as outras populações, as áreas de ponderação com o menor número de pessoas brancas somam cerca de 10.000 pessoas - exceção feita a dois casos.
 
@@ -550,7 +554,7 @@ Observando-se as menores quantidades de pessoas por raça/cor presentes nas áre
 
 Em sentido oposto, ao se considerarem as maiores quantidades de pessoas por raça/cor e área de ponderação (coluna "Maior valor"), agora é possível mensurar e identificar as áreas que possuem as maiores populações preta (6.208 pessoas), amarela (6.940) e indígena (1.005). Dado que a simples comparação desse valor com o do 3º quartil para cada uma dessas raças/cores indica uma diferença não desprezível, pode-se aventar ou suspeitar que algo ocorreu/ocorre nessas porções do território, fomentando essa concentração espacial.
 
-Operando-se de forma similar, verifica-se que as estatísticas da tabela especificam as medidas anteriormente obtidas por meio dos gráficos. Dessa forma, as aproximações geradas para os percentis 25º e 75º (medidas/linhas limites da caixa do *boxplot*), bem como para o 50º (mediana, representanda pela linha dentro da caixa), agora são mensuradas e localizadas de forma mais precisa. No caso da população preta, por exemplo, o primeiro, o segundo (mediana) e o terceiro quartis correspondem a 1.274, 2.264 e 3.186 pessoas. Por sua vez, essas mesmas medidas para a população parda perfazem e 5.276, 11.051 e 11.120 pessoas.
+Operando-se de forma similar, verifica-se que as estatísticas da tabela especificam as medidas anteriormente obtidas por meio dos gráficos. Dessa forma, as aproximações geradas para os percentis 25º e 75º (medidas/linhas limites da caixa do *boxplot*), bem como para o 50º (mediana, representanda pela linha dentro da caixa), agora são mensuradas e localizadas de forma mais precisa. No caso da população preta, por exemplo, o primeiro, o segundo (mediana) e o terceiro quartis correspondem a 1.274, 2.264 e 3.186 pessoas. Por sua vez, essas mesmas medidas para a população parda perfazem 5.276, 11.051 e 11.120 pessoas.
 
 Para finalizar essa etapa de "contextualização regional", duas novas estratégias serão rapidamente exploradas. Enquanto a primeira está baseada no tamanho das áreas de ponderação, como um todo (ou seja, considerando todas as raças/cores), a segunda abordará a questão a partir do tamanho da população negra (pessoas pardas + pessoas pretas).
 
@@ -603,6 +607,7 @@ tab_race_ap5_prop |>
   set_names("AP", "Branca %", "Parda %", "Preta %", "Amarela %", "Indígena %", "Ignorado %", "Total", "Branca % (Rank)", "Parda % (Rank)", "Preta % (Rank)", "Amarela % (Rank)", "Indígena % (Rank)", "Total % (Rank)") |> # <7>
   # mutate(`Negra %` = `Parda %` + `Preta %`) |>
   # relocate(`Negra %`, .after = `Preta %`) |>
+  mutate(across(.cols = !c(AP, Total, ends_with("(Rank)")), .fns = ~round(., digits = 2))) |> 
   gt()
 
 ```
@@ -617,17 +622,17 @@ tab_race_ap5_prop |>
 8.  Gere uma tabela mais visualmente atrativa, e,
 9.  Repita o mesmo procedimento, mas agora considerando as proporções populacionais por raça/cor e área de ponderação.
 
-A partir dos dados gerados, verifica-se que as cinco áreas de ponderação (AP) mais populosas do município de São Paulo variam de 56.989 a 53.366 pessoas (com uma média de 55.108 pessoas). E tal qual ocorre no município, as raças branca e parda concentram os maiores quantitativos de pessoas (cerca de 61% e 31%) nessas áreas, sendo seguidas mais de longe pela pessoas pretas, amarelas e indígenas.
+A partir dos dados gerados, verifica-se que as cinco áreas de ponderação (AP) mais populosas do município de São Paulo variam de `r tab_race_ap5_abs$total[1]` a `r tab_race_ap5_abs$total[5]` pessoas (com uma média de `r mean(tab_race_ap5_abs$total)` pessoas). E tal qual ocorre no município, as raças branca e parda concentram os maiores quantitativos de pessoas (cerca de `r race_by_mun_2010 |> filter(raca_cor_nome == "Branca") |> select(prop_race) |>  round()` e `r race_by_mun_2010 |> filter(raca_cor_nome == "Parda") |> select(prop_race) |>  round()`) nessas áreas, sendo seguidas mais de longe pela pessoas pretas, amarelas e indígenas.
 
-Ressalte-se, contudo, que a distância encontrada nesses casos é bem menor. Computando-se duas medidas de tendência central, constata-se que os totais médio e mediano de pessoas brancas dessas cinco AP são de `r mean(tab_race_ap5_abs$branca) |> round()` e `r median(tab_race_ap5_abs$branca) |> round()`. Já no caso das pessoas pardas, eles correspondem a `r mean(tab_race_ap5_abs$parda) |> round()` e `r median(tab_race_ap5_abs$branca) |> round()`. 
+Ressalte-se, contudo, que a distância encontrada nesses casos é bem menor. Computando-se duas medidas de tendência central, constata-se que os totais médio e mediano de pessoas brancas dessas cinco AP são de `r mean(tab_race_ap5_abs$branca) |> round()` e `r median(tab_race_ap5_abs$branca) |> round()`. Já no caso das pessoas pardas, eles correspondem a `r mean(tab_race_ap5_abs$parda) |> round()` e `r median(tab_race_ap5_abs$branca) |> round()`.
 
-Também é possível verificar que nas duas AP com o maior número de residentes do município (3550308005259 e 3550308005189) ocorre uma inversão entre as raças/cores branca e parda. Totalizando 49,9% (28.449 pessoas) e 44,4% (24.747), a população parda ali presente supera a branca - a leitura espacial a seguir indicará que essas duas AP estão localizadas nos distritos do Lajeado, extremo leste do município, e da Brasilândia, na Zona Norte. Mais: caso se considere a população negra (preta + parda), apenas a AP 3550308005237 possui mais residentes brancos - com 53% de brancos e 45% de negros, essa área está localizada no distrito do Campo Limpo. Para as quatro AP restantes, os números da população negra variam de 51% do total a 59% (27.992 a 33.649 pessoas, respectivamente).
+Também é possível verificar que nas duas AP com o maior número de residentes do município (3550308005259 e 3550308005189) ocorre uma inversão entre as raças/cores branca e parda. Totalizando 49,9% (28.449 pessoas) e 44,4% (24.747), a população parda ali presente supera a branca - a leitura espacial a seguir indicará que essas duas AP estão localizadas nos distritos do Lajeado, extremo leste do município, e da Brasilândia, na Zona Norte. Mais: caso se considere a população negra (preta + parda), das cinco AP mais populosas, apenas a 3550308005237 possui mais residentes brancos - com 53% de brancos e 45% de negros, essa área está localizada no distrito do Campo Limpo. Para as quatro AP restantes, os números da população negra variam de 51% do total a 59% (27.992 a 33.649 pessoas, respectivamente).
 
-Passa-se, agora, para alguns breves comentários baseados no ranqueamento das raças/cores para as cinco AP analisadas. Antes, contudo, é importante reforçar que o ordenamento foi realizado do maior valor (que ocupa a posição 1) para o menor (que ocupa a posição 310). Com isso, torna-se possível "olhar para dentro" de cada raça/cor e entender a sua distribuição territorial específica.
+Feitos esses breves comentários, passa-se, agora, a alguns breves comentários baseados no ranqueamento das raças/cores para as cinco AP analisadas. Antes, contudo, é importante reforçar que o ordenamento e a classificação foram realizados do maior valor (que ocupa a posição 1) para o menor (que ocupa a posição 310). Com isso, torna-se possível "olhar para dentro" de cada raça/cor e entender a sua distribuição territorial específica.
 
-Consideranço-se apenas os totais populacionais (valores absolutos), verifica-se, de forma geral, que as cinco AP mais populosas também apresentam grandes contingentes de pessoas pardas e negras . Observa-se, por exemplo, que quatro das cinco AP mais populosas do município estão entre as 10 AP mais pardas do município (posições 2, 3, 4 e 10). No caso da população preta, o mesmo ocorre para três dos cinco casos analisados (posições 1, 8 e 5). Apenas para efeito de comparação, a AP que possui o maior número de pessoas brancas (28.194) dentre as 5 AP mais populosas do município ocupa apenas a posição 51 no _ranking_ de AP da raça/cor branca.
+Consideranço-se apenas os totais populacionais (valores absolutos), verifica-se, de forma geral, que as cinco AP mais populosas também apresentam grandes contingentes de pessoas pardas e negras . Observa-se, por exemplo, que quatro das cinco AP mais populosas do município estão entre as 10 AP mais pardas do município (posições 2, 3, 4 e 10). No caso da população preta, o mesmo ocorre para três dos cinco casos analisados (posições 1, 8 e 5). Apenas para efeito de comparação, a AP que possui o maior número de pessoas brancas (28.194) dentre as 5 AP mais populosas do município ocupa apenas a posição 51 no *ranking* de AP da raça/cor branca.
 
-A seguir, as cinco AP analisadas são espacializadas. Localizadas em diferentes partes do território (zonas Leste, Norte e Sul), percebe-se com relativa facilidade um traço comum: todas se encontram em regiões periféricas do município.
+A seguir, as cinco AP analisadas são espacializadas e inseridas dentro dos seus respectivos distritos (limites em roxo e linha preta). Localizadas em diferentes partes do território (zonas Leste, Norte e Sul), percebe-se com relativa facilidade um traço comum: todas se encontram em regiões periféricas do município. Note: para além da legenda, localizada no canto direito superior do "mapa", no canto inferior direito aparece a identificação dessas AP novamente. Esse "botão translúcido", ao ser clicado, leva a um *zoom* da área escolhida no mapa. Para retornar ao *zoom* inicial, clique no botão no canto inferior esquerdo (*Zoom full*).
 
 ```{r}
 #| label: map_5_rank_pop_ap_mun_sp
@@ -637,13 +642,19 @@ A seguir, as cinco AP analisadas são espacializadas. Localizadas em diferentes 
 ap_mun_sp <- read_weighting_area(code_weighting = 3550308, year = 2010) # <1>
 
 ## Find out the code of the 1st five AP with the highest population from the aspatial data set
-top_5_ap_abs <- race_by_ap_2010_wider_pos_prop |> 
-  slice_head(n = 5) |> 
-  pull(ap)
+top5_ap_abs <- race_by_ap_2010_wider_pos_abs |> 
+  slice_head(n = 5) 
+# |>  pull(ap)
 
 ## Filter the 1st 5 AP spatial limits of interest 
-ap_geo_sel <- ap_mun_sp |> 
-  filter(code_weighting %in% top_5_ap_abs) 
+ap_top5_pop_geo <- ap_mun_sp |> 
+  select(code_weighting, name_muni) |> 
+  right_join(top5_ap_abs, join_by(code_weighting == ap)) |> 
+  relocate(name_muni) |> 
+  arrange(desc(total))
+
+ap_top5_pop_geo_pts <- ap_top5_pop_geo |>
+  st_centroid()
 
 
 # Get the district spatial limits for SP munic
@@ -653,31 +664,192 @@ distrito_mun_sp <- read_neighborhood(year = 2010) |>
 
 
 # See both AP selected and District data together in the space
-mapview(distrito_mun_sp, zcol = "name_district", color = "gray35", col.regions = "royalblue", alpha.regions = 0.4, legend = FALSE) + mapview(ap_geo_sel, zcol = "code_weighting", lwd = 2, burst = T)
+## See the color pallets available
+display.brewer.all(n = NULL, type = "all", select = NULL, exact.n = TRUE, 
+                   colorblindFriendly = TRUE)
+
+## Create a map to show the AP limits
+map_top5_ap_pop_lim <- mapview(distrito_mun_sp, 
+                               zcol = "name_district", 
+                               color = "gray35", 
+                               col.regions = "royalblue", 
+                               alpha.regions = 0.4, 
+                               legend = FALSE) + 
+  mapview(ap_top5_pop_geo, 
+          zcol = "code_weighting", 
+          lwd = 2, 
+          burst = T)  
+
+## Create a map to show the AP centroids/points
+map_top5_ap_pop_pts <- mapview(distrito_mun_sp, 
+                               zcol = "name_district", 
+                               color = "gray35", 
+                               col.regions = "royalblue", 
+                               alpha.regions = 0.4, 
+                               legend = FALSE) + 
+  mapview(ap_top5_pop_geo_pts, 
+          zcol = "total", 
+          cex = "total", 
+          layer.name = "Pop (total)", 
+          col.regions = brewer.pal(5, "YlOrRd"))
+
+## Show both maps
+leafsync::sync(map_top5_ap_pop_lim, map_top5_ap_pop_pts, ncol = 2)
 
 ```
 
-Para o desenvovlimento da segunda estratégia, propõe-se uma leitura mais integrada entre os dados e sua distribuição espacial. Nesse sentido, a espacialização não cumprirá, apenas, o papel de formalizar os achados. Diferetemente do realizado anteriormente, agora ela também contribuirá mais ativamente para a produção dos achados.
+Para o desenvolvimento da segunda estratégia, propõe-se uma leitura mais integrada entre os dados e sua distribuição espacial. Mais do que formalizar ou representar de outra forma os achados, agora a espacialização contribuirá mais ativamente para a produção de subsídios e achados.
 
-Inicialmente, serão selecionadas as áreas cinco áreas de ponderaçao com as maiores populações negras. O ranqueamento criado poderia ser utilizado para essa finalidade. Contudo, um caminho distinto é proposto.
+Nesse sentido, a seguir serão computados e ordenados os totais e as proporções da população negra por área de ponderação, com destaque para as cinco maiores áreas/populações. Note: ainda que possa se basear no ranqueamento realizado anteriormente, de forma a explorar a construção de códigos um caminho distinto é proposto.
 
 ```{r}
+#| label: tab_rank_black_pop_ap_mun_sp
 
-tab_black_ap5_abs <- race_by_ap_2010_wider_pos_abs |>
-  mutate(negra = parda + preta)  |> 
-  relocate(negra, .after = preta) |> 
-  arrange(desc(negra))
+# Select the 5 weighting areas (AP) with the highest black population (absolute values)
+## Compute the total black population for all 310 AP
+tab_black_ap_abs <- race_by_ap_2010_wider_pos_abs |> # <1>
+  mutate(negra = parda + preta,
+         negra_rank = min_rank(desc(negra)))  |> # <2>
+  relocate(negra, .after = preta) |> # <3>
+  relocate(negra_rank, .after = preta_rank) |> # <3>
+  arrange(desc(negra)) # <4>
 
+## Select only the 5 AP with most Black population 
+tab_black_ap5_abs <- tab_black_ap_abs |> 
+  head(5) # <5>  
+
+## Create a more attractive table
 tab_black_ap5_abs |>   
-  # select(!ends_with("_rank")) |> 
-  # set_names("AP", "Branca", "Parda", "Preta", "Amarela", "Indígena", "Ignorado", "Total")
-  set_names("AP", "Branca", "Parda", "Preta", "Negra", "Amarela", "Indígena", "Ignorado", "Total", "Branca (Rank)", "Parda (Rank)", "Preta (Rank)", "Amarela (Rank)", "Indígena (Rank)", "Total (Rank)") |> 
-  gt()
+  select(!ends_with("_rank")) |> # <6>
+  set_names("AP", "Branca", "Parda", "Preta", "Negra", "Amarela", "Indígena", "Ignorado", "Total") |> # <7>
+  # set_names("AP", "Branca", "Parda", "Preta", "Negra", "Amarela", "Indígena", "Ignorado", "Total", "Branca (Rank)", "Parda (Rank)", "Preta (Rank)", "Amarela (Rank)", "Indígena (Rank)", "Total (Rank)") |> 
+  gt() # <8>
   
+
+# Select the 5 weighting areas with the highest proportion of black people (relative values)
+## Compute the total black population for all 310 AP
+tab_black_ap_prop <- race_by_ap_2010_wider_pos_prop |> # <9>
+  mutate(negra_prop = parda_prop + preta_prop,
+         negra_prop_rank = min_rank(desc(negra_prop)))  |> 
+  relocate(negra_prop, .after = preta_prop) |>
+  relocate(negra_prop_rank, .after = preta_prop_rank) |>
+  arrange(desc(negra_prop)) 
+
+tab_black_ap5_prop <- tab_black_ap_prop |> 
+  head(5)
+  
+# Create a more attractive table
+tab_black_ap5_prop |>   
+  select(!ends_with("_rank")) |> 
+  mutate(across(!c(ap, total), .fns = ~round(x = ., digits = 2))) |> 
+  set_names("AP", "Branca (%)", "Parda (%)", "Preta (%)", "Negra (%)", "Amarela (%)", "Indígena (%)", "Ignorado (%)", "Total") |> 
+  # set_names("AP", "Branca", "Parda", "Preta", "Negra", "Amarela", "Indígena", "Ignorado", "Total", "Branca (Rank)", "Parda (Rank)", "Preta (Rank)", "Amarela (Rank)", "Indígena (Rank)", "Total (Rank)") |> 
+  gt()
 
 ```
 
-Em seguida, serão selecionadas as áreas de ponderação com a maior população negra.
+1.  Selecione a base de interesse e crie um objeto para salvar os resultados;
+2.  Adicione duas novas variáveis, uma para a contagem da população negra (var *negra*) e a outra para o seu ranqueamento (var. *negra_rank*);
+3.  Desloque as variáveis criadas;
+4.  Ordene a base em função da população total negra de forma decrescente (do maior para o menor valor);
+5.  Selecione as cinco primeiras AP (cinco maiores populações negras);
+6.  Exclua as variáveis que tratam do ranqueamento para a criação de uma tabela mais limpa;
+7.  Defina nomes de variáveis mais intuitivas;
+8.  Gere uma tabela mais visualmente atrativa, e,
+9.  Repita o mesmo procedimento, mas agora considerando as proporções populacionais por raça/cor e área de ponderação.
+
+Para complementar a leitura a partir dos dados totais e proporcionais da população negra no município de São Paulo, a seguir eles são espacializados.
+
+```{r}
+#| label: map_black_pop_ap_mun_sp
+
+# Join the AP limits (geospatial) with pop data by AP (aspatial)
+ap_pop_black_abs_geo <- ap_mun_sp |> 
+  select(name_muni, code_weighting) |> 
+  right_join(tab_black_ap_abs, join_by(code_weighting == ap)) |> 
+  arrange(desc(negra))
+
+# Select the 5 highest black population by AP
+ap_top5_pop_black_abs_geo <- ap_pop_black_abs_geo |> 
+  head(5)
+
+# Create the centroids of the 5 highest black population by AP
+ap_top5_pop_black_abs_geo_pts <- ap_top5_pop_black_abs_geo |> 
+  st_centroid()
+
+# Map the black population by AP and show the 5 biggest pop/area
+## Fill all the AP with black population
+map_ap_pop_black_lim <- mapview(ap_pop_black_abs_geo, 
+        zcol = "negra", 
+        col.regions = brewer.pal(310, "YlOrRd"), 
+        lwd = 0.15, 
+        layer.name = "Pop. (Total)")
+
+## Map the five AP with the highest Black population
+map_top_5_ap_pop_black_pts  <- mapview(ap_top5_pop_black_abs_geo_pts, 
+          zcol = "negra", 
+          cex = "negra",
+          color = "grey25",
+          alpha.regions = 0, 
+          lwd = 2,
+          layer.name = "Pop. (5 mais)", 
+          legend = F)
+
+## Map the SP's district limits
+map_distrito_mun_sp_lim <-  mapview(distrito_mun_sp, zcol = "name_district", alpha.regions = 0, lwd = 0.3, legend = FALSE)
+
+## Join the three layers into a unique geospatial representation
+map_black_abs_all <-map_ap_pop_black_lim +
+  map_top_5_ap_pop_black_pts +
+    map_distrito_mun_sp_lim
+
+  
+# Join the AP limits (geospatial) with pop data by AP (aspatial)
+ap_pop_black_prop_geo <- ap_mun_sp |> 
+  select(name_muni, ap = code_weighting) |> 
+  right_join(tab_black_ap_prop, join_by(ap)) |> 
+  mutate(across(.cols = !c("name_muni", "ap", "geom"), .fns = ~round(x = ., digits = 2))) |> 
+  arrange(desc(negra_prop))
+
+# Select the 5 highest black population proportions by AP
+ap_top5_pop_black_prop_geo <- ap_pop_black_prop_geo |> 
+  head(5)
+
+# Create the centroids of the 5 highest black population proportions by AP
+ap_top5_pop_black_prop_geo_pts <- ap_top5_pop_black_prop_geo |> 
+  st_centroid()
+
+# Map the black population proportion by AP and show the 5 biggest pop/area
+## Fill all the AP with black population
+map_ap_pop_black_prop_lim <- mapview(ap_pop_black_prop_geo, 
+        zcol = "negra_prop", 
+        col.regions = brewer.pal(310, "YlOrRd"), 
+        lwd = 0.15, 
+        layer.name = "Pop. (%)")
+
+## Map the five AP with the highest Black population proportions
+map_top_5_ap_pop_black_prop_pts  <- mapview(ap_top5_pop_black_prop_geo_pts, 
+          zcol = "negra_prop", 
+          cex = "negra_prop",
+          color = "black",
+          alpha.regions = 0, 
+          lwd = 2,
+          layer.name = "Pop. (% 5 most)", 
+          legend = F)
+
+## Join the three layers into a unique geospatial representation
+map_black_prop_all <- map_distrito_mun_sp_lim + 
+  map_ap_pop_black_prop_lim +
+    map_top_5_ap_pop_black_prop_pts
+    
+
+# Show both maps side by side
+leafsync::sync(map_black_abs_all, map_black_prop_all)
+```
+
+Como pode ser visto, o recurso de visualização espacial produzido apresenta dois mapas sincronizados. Enquanto à esquerda é possível ver a classificação das áreas de ponderação (AP) em função dos totais da população negra residente, à direita a classifição baseia-se nas propoções da população negra residente nas AP. Note-se, ainda, que as linhas cinzas representam os limites das AP, enquanto as linhas pretas expõem os limites dos distritos municipais.
+
+
 
 ## Analisando os dados: da identificação à caracterização da região de interesse
 
@@ -709,7 +881,7 @@ distrito_mun_sp <- read_neighborhood(year = 2010) |> # <2>
 #| label: finding_ap
 
 # Plot the weighting areas and district limits
-mapview(ap_mun_sp, zcol = "code_weighting", legend = FALSE) + mapview(distrito_mun_sp, zcol = "name_district", alpha.regions = 0.2, legend = FALSE) # <3>
+mapview(ap_mun_sp, zcol = "code_weighting", legend = FALSE) + mapview(distrito_mun_sp, zcol = "name_district", alpha.regions = 0, legend = FALSE) # <3>
 
 ```
 
