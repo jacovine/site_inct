@@ -15,7 +15,7 @@ format:
 editor_options: 
   chunk_output_type: console
   output: false
-  warning: false
+warning: false
 engine: knitr
 ---
 
@@ -268,7 +268,8 @@ Tão relevante quanto a geração de dados é a comunicação dos achados - algo
 race_by_mun_2010 |> # <1>
   select(raca_cor_nome, tot_peop_peso, prop_race) |> # <2>
   rename("Raça ou cor" = raca_cor_nome, "Total de pessoas" = tot_peop_peso, "Proporção (%)" = prop_race) |> # <3>
-  mutate(across(.cols = `Total de pessoas`, round)) |> # <4>
+  mutate(across(.cols = `Total de pessoas`, .fns = round),
+         across(.cols = `Proporção (%)`, .fns = ~round(., digits = 2))) |> # <4>
   arrange(desc(`Proporção (%)`)) |> # <5>
   gt() # <6>
 
@@ -277,7 +278,7 @@ race_by_mun_2010 |> # <1>
 1.  Selecione a base de dados gerada;
 2.  Escolha apenas as variáveis de interesse;
 3.  Renomeie as variáveis;
-4.  Arrendonde os valores referentes ao total de pessoas;
+4.  Arrendonde os valores referentes ao total de pessoas e à proporção;
 5.  Ordene os dados da maior proporção de pessoas para a menor, e,
 6.  Gere uma tabela mais visualmente atrativa;
 
@@ -639,7 +640,7 @@ A seguir, as cinco AP analisadas são espacializadas e inseridas dentro dos seus
 
 # Select the 1st five AP with the highest population
 ## Get the AP spatial limits
-ap_mun_sp <- read_weighting_area(code_weighting = 3550308, year = 2010) # <1>
+ap_mun_sp <- read_weighting_area(code_weighting = 3550308, year = 2010, simplified = F) # <1>
 
 ## Find out the code of the 1st five AP with the highest population from the aspatial data set
 top5_ap_abs <- race_by_ap_2010_wider_pos_abs |> 
@@ -658,7 +659,7 @@ ap_top5_pop_geo_pts <- ap_top5_pop_geo |>
 
 
 # Get the district spatial limits for SP munic
-distrito_mun_sp <- read_neighborhood(year = 2010) |>
+distrito_mun_sp <- read_neighborhood(year = 2010, simplified = F) |>
   filter(code_muni == 3550308) |> 
   select(abbrev_state, name_muni, code_district, name_district)
 
@@ -678,7 +679,8 @@ map_top5_ap_pop_lim <- mapview(distrito_mun_sp,
   mapview(ap_top5_pop_geo, 
           zcol = "code_weighting", 
           lwd = 2, 
-          burst = T)  
+          burst = T, 
+          legend = FALSE)  
 
 ## Create a map to show the AP centroids/points
 map_top5_ap_pop_pts <- mapview(distrito_mun_sp, 
@@ -690,17 +692,18 @@ map_top5_ap_pop_pts <- mapview(distrito_mun_sp,
   mapview(ap_top5_pop_geo_pts, 
           zcol = "total", 
           cex = "total", 
-          layer.name = "Pop (total)", 
-          col.regions = brewer.pal(5, "YlOrRd"))
+          layer.name = "Pop. (total)")
+          # col.regions # col.regions # col.regions = rev(brewer.pal(5, "YlOrRd")))
+          
 
 ## Show both maps
 leafsync::sync(map_top5_ap_pop_lim, map_top5_ap_pop_pts, ncol = 2)
 
 ```
 
-Para o desenvolvimento da segunda estratégia, propõe-se uma leitura mais integrada entre os dados e sua distribuição espacial. Mais do que formalizar ou representar de outra forma os achados, agora a espacialização contribuirá mais ativamente para a produção de subsídios e achados.
+Para o desenvolvimento da segunda estratégia, propõe-se uma leitura mais integrada entre os dados e sua distribuição espacial. Mais do que formalizar ou representar de outra forma os achados, agora a espacialização contribuirá mais ativamente para a compreensão do objeto de interesse.
 
-Nesse sentido, a seguir serão computados e ordenados os totais e as proporções da população negra por área de ponderação, com destaque para as cinco maiores áreas/populações. Note: ainda que possa se basear no ranqueamento realizado anteriormente, de forma a explorar a construção de códigos um caminho distinto é proposto.
+Nesse sentido, a seguir serão computados e ordenados os totais e as proporções da população negra por área de ponderação, com destaque para as cinco maiores áreas/populações. Note: ainda que se possa utilizar o ranqueamento já realizado para isso, de forma a explorar a construção de códigos um caminho distinto é proposto.
 
 ```{r}
 #| label: tab_rank_black_pop_ap_mun_sp
@@ -758,26 +761,41 @@ tab_black_ap5_prop |>
 8.  Gere uma tabela mais visualmente atrativa, e,
 9.  Repita o mesmo procedimento, mas agora considerando as proporções populacionais por raça/cor e área de ponderação.
 
-Para complementar a leitura a partir dos dados totais e proporcionais da população negra no município de São Paulo, a seguir eles são espacializados.
+Para complementar a leitura a partir dos dados totais e proporcionais da população negra no município de São Paulo, o código a seguir ilustra uma forma de espacializá-los. Note: ainda que seja maior do que os trechos anteriores, as linhas de comando buscam, basicamente, i) agregar a informação dos distritos e os dados de raça/cor à camada espacial das áreas de ponderação, e, ii) criar uma representação espacial da distribuição das pessoas negras no município de São Paulo, tanto em quantidade quanto em proporção.
 
 ```{r}
 #| label: map_black_pop_ap_mun_sp
 
-# Join the AP limits (geospatial) with pop data by AP (aspatial)
-ap_pop_black_abs_geo <- ap_mun_sp |> 
-  select(name_muni, code_weighting) |> 
-  right_join(tab_black_ap_abs, join_by(code_weighting == ap)) |> 
+# Prepare the data to see the black territorial distribution (absolute values/TOTAL POP)
+## Find out the relationship between weighting areas (AP) and districts
+ap_mun_sp_with_dstrc <- ap_mun_sp |> 
+  st_centroid() |> 
+  st_intersection(distrito_mun_sp[c("name_district")]) |> 
+  mutate(name_district = factor(name_district)) |> 
+  arrange(code_weighting) |> 
+  st_drop_geometry()
+
+## Add the district info to the AP spatial limits
+ap_mun_sp_with_dstrc <- ap_mun_sp |>  
+  left_join(ap_mun_sp_with_dstrc[c("code_weighting", "name_district")], join_by(code_weighting))
+
+## Add the race data set (aspatial) to AP spatial limits (already with districts info) 
+ap_pop_black_abs_geo <- ap_mun_sp_with_dstrc |> 
+  select(name_muni, ap = code_weighting, name_district) |> 
+  right_join(tab_black_ap_abs, join_by(ap)) |> 
   arrange(desc(negra))
 
-# Select the 5 highest black population by AP
+## Select the 5 highest black population by AP (now a spatial object with districts info)
 ap_top5_pop_black_abs_geo <- ap_pop_black_abs_geo |> 
   head(5)
+
 
 # Create the centroids of the 5 highest black population by AP
 ap_top5_pop_black_abs_geo_pts <- ap_top5_pop_black_abs_geo |> 
   st_centroid()
 
-# Map the black population by AP and show the 5 biggest pop/area
+
+# Map the black population by AP and highlight the 5 biggest pop/area
 ## Fill all the AP with black population
 map_ap_pop_black_lim <- mapview(ap_pop_black_abs_geo, 
         zcol = "negra", 
@@ -796,30 +814,32 @@ map_top_5_ap_pop_black_pts  <- mapview(ap_top5_pop_black_abs_geo_pts,
           legend = F)
 
 ## Map the SP's district limits
-map_distrito_mun_sp_lim <-  mapview(distrito_mun_sp, zcol = "name_district", alpha.regions = 0, lwd = 0.3, legend = FALSE)
+map_distrito_mun_sp_lim <- mapview(distrito_mun_sp, zcol = "name_district", alpha.regions = 0, lwd = 0.4, legend = FALSE)
 
 ## Join the three layers into a unique geospatial representation
-map_black_abs_all <-map_ap_pop_black_lim +
-  map_top_5_ap_pop_black_pts +
-    map_distrito_mun_sp_lim
+map_black_abs_all <- map_distrito_mun_sp_lim + 
+  map_ap_pop_black_lim + 
+    map_top_5_ap_pop_black_pts
+    
 
-  
-# Join the AP limits (geospatial) with pop data by AP (aspatial)
-ap_pop_black_prop_geo <- ap_mun_sp |> 
-  select(name_muni, ap = code_weighting) |> 
+# Prepare the data to see the black territorial distribution (relative values/PROPORTIONAL POP)  
+## Join the AP limits (geospatial) with pop data by AP (aspatial)
+ap_pop_black_prop_geo <- ap_mun_sp_with_dstrc |> 
+  select(name_muni, ap = code_weighting, name_district) |> 
   right_join(tab_black_ap_prop, join_by(ap)) |> 
-  mutate(across(.cols = !c("name_muni", "ap", "geom"), .fns = ~round(x = ., digits = 2))) |> 
+  mutate(across(.cols = !c("name_muni", "ap", "name_district", "geom"), .fns = ~round(x = ., digits = 2))) |> 
   arrange(desc(negra_prop))
 
-# Select the 5 highest black population proportions by AP
+## Select the 5 highest black population proportions by AP
 ap_top5_pop_black_prop_geo <- ap_pop_black_prop_geo |> 
   head(5)
 
-# Create the centroids of the 5 highest black population proportions by AP
+## Create the centroids of the 5 highest black population proportions by AP
 ap_top5_pop_black_prop_geo_pts <- ap_top5_pop_black_prop_geo |> 
   st_centroid()
 
-# Map the black population proportion by AP and show the 5 biggest pop/area
+
+# Map the black population proportion by AP and highlight the 5 biggest pop/area
 ## Fill all the AP with black population
 map_ap_pop_black_prop_lim <- mapview(ap_pop_black_prop_geo, 
         zcol = "negra_prop", 
@@ -845,10 +865,24 @@ map_black_prop_all <- map_distrito_mun_sp_lim +
 
 # Show both maps side by side
 leafsync::sync(map_black_abs_all, map_black_prop_all)
+
 ```
 
-Como pode ser visto, o recurso de visualização espacial produzido apresenta dois mapas sincronizados. Enquanto à esquerda é possível ver a classificação das áreas de ponderação (AP) em função dos totais da população negra residente, à direita a classifição baseia-se nas propoções da população negra residente nas AP. Note-se, ainda, que as linhas cinzas representam os limites das AP, enquanto as linhas pretas expõem os limites dos distritos municipais.
+Como pode ser visto, o recurso de visualização espacial produzido apresenta dois mapas sincronizados. Enquanto à esquerda é possível ver a classificação das áreas de ponderação (AP) em função dos totais da população negra (parda + preta) residente, à direita a classifição baseia-se nas proporções dessa população residente nas AP. Note-se, ainda, que as linhas cinzas representam os limites das AP e dos distritos municipais.
 
+Considerando-se a distribuição da raça negra por áreas de ponderação (AP, representadas por polígonos em cores), ainda que existam diferenças, um padrão parece se repetir em ambos os casos: cores mais claras e próximas ao amarelo ocupam uma porção mais central do município, indicando uma menor presença e concentração dessa população - a área em questão abrange partes da região central (distritos da Santa Cecília e Consolação, por ex.), oeste (distritos da Barra Funda, Perdizes e Pinheiros), sudoeste-sul (Distritos do Jardim Paulista, Moema, Itam Bibi e Vila Mariana) e centro-leste (distritos da Mooca e Tatuapé). Por sua vez, conforme se avança em direção às bordas de São Paulo, as cores tendem a se aproximar do vermelho, apontando para um aumento da população negra em áreas mais periféricas do munícipio.
+
+Observando-de de forma mais atenta, é possível verificar que tal padrão é mais heterogêneo quando se considera o total de pessoas negras em cada uma das AP (mapa à esquera). Apenas para ilustrar o ponto, note uma espécie de "linha contínua" na zona norte, que parte da Marginal Tiête, engloba os distritos de Santana e Mandaqui e alcança a fronteira do município. Em sentido oposto, o quadro que se obtém a partir das proporções de negros por AP é bem mais homogêneo, com o padrão centro-perfieria aparecendo de forma bem mais clara.
+
+
+PRÓXIMOS PASSOS:
+
+1) Comentar sobre as cinco áreas com maiores concentrações.
+2) Passar para a análise da região da Liberdade
+
+
+
+(que traço parece estar presente em ambos os casos.tanto o total de pessoas por AP ()
 
 
 ## Analisando os dados: da identificação à caracterização da região de interesse
